@@ -13,38 +13,39 @@ resource "helm_release" "argocd" {
   version    = "9.0.5"
 }
 
-# Deploy App of Apps via Terraform
-resource "kubernetes_manifest" "app_of_apps" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "app-of-apps"
-      namespace = "argocd"
-      finalizers = [
-        "resources-finalizer.argocd.argoproj.io"
-      ]
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = "https://github.com/chiju/eks-lab-argocd.git"
-        targetRevision = "bootstrap"
-        path           = "argocd-apps"
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "argocd"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
+resource "helm_release" "argocd_apps" {
+  name       = "argocd-apps"
+  repository = "oci://ghcr.io/argoproj/argo-helm"
+  chart      = "argocd-apps"
+  namespace  = "argocd"
+  
+  values = [
+    yamlencode({
+      applications = {
+        app-of-apps = {
+          namespace = "argocd"
+          finalizers = ["resources-finalizer.argocd.argoproj.io"]
+          project = "default"
+          source = {
+            repoURL        = "https://github.com/chiju/eks-lab-argocd.git"
+            targetRevision = "bootstrap"
+            path           = "argocd-apps"
+          }
+          destination = {
+            server    = "https://kubernetes.default.svc"
+            namespace = "argocd"
+          }
+          syncPolicy = {
+            automated = {
+              prune    = true
+              selfHeal = true
+            }
+          }
         }
       }
-    }
-  }
-
+    })
+  ]
+  
   depends_on = [helm_release.argocd]
 }
 
