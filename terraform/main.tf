@@ -21,6 +21,9 @@ resource "kubernetes_manifest" "app_of_apps" {
     metadata = {
       name      = "app-of-apps"
       namespace = "argocd"
+      finalizers = [
+        "resources-finalizer.argocd.argoproj.io"
+      ]
     }
     spec = {
       project = "default"
