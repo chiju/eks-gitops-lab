@@ -1,0 +1,11 @@
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      retention: 7d
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+  grafana:
+    enabled: true
+    adminPassword: admin
