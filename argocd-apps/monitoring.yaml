@@ -6,9 +6,17 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/chiju/eks-lab-argocd.git
-    targetRevision: bootstrap
-    path: apps/kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 65.8.1
+    helm:
+      values: |
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+        grafana:
+          enabled: true
+          adminPassword: admin
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
