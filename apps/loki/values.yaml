@@ -21,9 +21,15 @@ loki:
             period: 24h
   singleBinary:
     replicas: 1
+    persistence:
+      enabled: false
   read:
     replicas: 0
   write:
     replicas: 0
   backend:
     replicas: 0
+  chunksCache:
+    enabled: false
+  resultsCache:
+    enabled: false
