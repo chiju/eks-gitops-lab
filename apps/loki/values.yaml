@@ -4,8 +4,12 @@ loki:
     auth_enabled: false
     commonConfig:
       replication_factor: 1
+      path_prefix: /tmp/loki
     storage:
       type: 'filesystem'
+      filesystem:
+        chunks_directory: /tmp/loki/chunks
+        rules_directory: /tmp/loki/rules
       bucketNames:
         chunks: chunks
         ruler: ruler
@@ -23,6 +27,12 @@ loki:
     replicas: 1
     persistence:
       enabled: false
+    extraVolumes:
+      - name: tmp
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: tmp
+        mountPath: /tmp
   read:
     replicas: 0
   write:
