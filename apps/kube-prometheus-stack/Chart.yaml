@@ -4,5 +4,5 @@ description: Production monitoring stack
 version: 1.0.0
 dependencies:
   - name: kube-prometheus-stack
-    version: "79.0.1"
+    version: "79.1.0"
     repository: oci://ghcr.io/prometheus-community/charts
