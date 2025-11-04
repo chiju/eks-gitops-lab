@@ -7,17 +7,17 @@ terraform {
         }
         helm = {
             source = "hashicorp/helm"
-            version = "~> 2.16"
+            version = "~> 3.1.0"
         }
     }
 }
 
 provider "kubernetes" {
-    config_path = "/Users/c.chandran/lab/eks-lab-argocd/eks-lab-argocd-kubeconfig.yaml"
+    config_path = "/Users/c.chandran/lab/eks-lab-argocd/terraform/eks-lab-argocd-kubeconfig.yaml"
 }
 
 provider "helm" {
-    kubernetes {
-        config_path = "/Users/c.chandran/lab/eks-lab-argocd/eks-lab-argocd-kubeconfig.yaml"
+    kubernetes = {
+        config_path = "/Users/c.chandran/lab/eks-lab-argocd/terraform/eks-lab-argocd-kubeconfig.yaml"
     }
 }

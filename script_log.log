@@ -1,0 +1,50 @@
+2025-11-03 22:05:51 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-11-03 22:05:58 - INFO - 🚀 Script started at 2025-11-03 22:05:58
+2025-11-03 22:05:58 - INFO - 🔐 Logging into Yahoo...
+2025-11-03 22:06:02 - INFO - ⚠️ Checking for popups...
+2025-11-03 22:06:07 - INFO - ℹ️ Finished checking for popups.
+2025-11-03 22:06:07 - INFO - ⏳ Waiting for email input field...
+2025-11-03 22:06:28 - INFO - ℹ️ Challenge URL detected but no CAPTCHA elements found - proceeding...
+2025-11-03 22:06:28 - INFO - ⏳ Waiting for password field to be clickable...
+2025-11-03 22:06:28 - INFO - ✅ Password field found. Entering password...
+2025-11-03 22:06:30 - INFO - ✅ Final login button found. Clicking with JavaScript...
+2025-11-03 22:06:32 - INFO - ⏳ Waiting 2 seconds after login button click...
+2025-11-03 22:06:34 - INFO - 🔄 Starting URL monitoring...
+2025-11-03 22:06:57 - INFO - 🔍 Current URL: https://de.yahoo.com/?p=us
+2025-11-03 22:06:57 - INFO - ⚠️ Not on portfolio page. Navigating to portfolio...
+2025-11-03 22:07:32 - INFO - 🔍 Current URL: https://finance.yahoo.com/portfolios
+2025-11-03 22:07:32 - INFO - ✅ On portfolio page: https://finance.yahoo.com/portfolios
+2025-11-03 22:07:32 - INFO - 🔄 Starting HTML parsing...
+2025-11-03 22:08:06 - INFO - ✅ Table data found, waiting for summary to stabilize...
+2025-11-03 22:08:28 - INFO - ✅ Taking HTML snapshot for parsing...
+2025-11-03 22:08:28 - INFO - 🔍 Found 161 fin-streamer elements
+2025-11-03 22:08:28 - INFO - ✅ Found main holdings section
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN portfolio_value: ₹2,787,469.28
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN day_change: -₹12,508.69
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN unrealized: +₹291,491.01
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN realized: -₹124,374.86
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN day_change_percent: (-0.45%)
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN unrealized_percent: (+11.68%)
+2025-11-03 22:08:28 - INFO - ✅ Found MAIN realized_percent: -8.11%
+2025-11-03 22:08:28 - INFO - ✅ Found table for individual portfolios
+2025-11-03 22:08:28 - INFO - ✅ Added portfolio: A-Indian Stocks - Day: -- ()
+2025-11-03 22:08:28 - INFO - ✅ Added portfolio: A-US Stocks - Day: +₹13,960.93 (+1.86%)
+2025-11-03 22:08:28 - INFO - ✅ Added portfolio: Crypto Market - Day: -- ()
+2025-11-03 22:08:28 - INFO - ✅ Added portfolio: US Market - Day: -₹26,469.62 (-1.29%)
+2025-11-03 22:08:28 - INFO - ✅ Found 4 individual portfolios
+2025-11-03 22:08:28 - INFO - ✅ All data found - uploading...
+2025-11-03 22:08:28 - INFO - 
+📊 Portfolio Summary
+2025-11-03 22:08:28 - INFO - Total Holdings       : ₹2,787,469.28
+2025-11-03 22:08:28 - INFO - Day Change           : -₹12,508.69 ((-0.45%))
+2025-11-03 22:08:28 - INFO - Unrealized Gain/Loss : +₹291,491.01 ((+11.68%))
+2025-11-03 22:08:28 - INFO - Realized Gain/Loss   : -₹124,374.86 (-8.11%)
+2025-11-03 22:08:29 - INFO - ✅ Appended row to Google Sheet: 1 row(s)
+2025-11-03 22:08:29 - INFO - ✅ Data uploaded successfully.
+2025-11-03 22:08:29 - INFO - ✅ Script completed successfully.
+2025-11-03 22:08:29 - INFO - 🧹 Cleaning up...
+2025-11-03 22:08:29 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10e57e0d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/434cdaab5fb243dbe796a83e22d8a5f8
+2025-11-03 22:08:29 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10e57e5d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/434cdaab5fb243dbe796a83e22d8a5f8
+2025-11-03 22:08:29 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10dfb6780>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/434cdaab5fb243dbe796a83e22d8a5f8
+2025-11-03 22:08:29 - INFO - ✅ Script completed in 151.14 seconds.
+2025-11-03 22:08:29 - INFO - ✅ Script finished at 2025-11-03 22:08:29

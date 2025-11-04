@@ -27,12 +27,6 @@ loki:
     replicas: 1
     persistence:
       enabled: false
-    extraVolumes:
-      - name: tmp
-        emptyDir: {}
-    extraVolumeMounts:
-      - name: tmp
-        mountPath: /tmp
   read:
     replicas: 0
   write:
