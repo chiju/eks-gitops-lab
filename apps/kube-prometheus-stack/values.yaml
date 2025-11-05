@@ -9,4 +9,9 @@ kube-prometheus-stack:
   grafana:
     enabled: true
     adminPassword: admin
-    
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        url: http://loki-gateway.loki.svc.cluster.local
+        access: proxy
+        isDefault: false
