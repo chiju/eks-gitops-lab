@@ -17,7 +17,7 @@ resource "helm_release" "argocd_apps" {
   repository = "oci://ghcr.io/argoproj/argo-helm"
   chart      = "argocd-apps"
   namespace  = var.namespace
-  
+
   values = [
     yamlencode({
       applications = {
@@ -44,13 +44,13 @@ resource "helm_release" "argocd_apps" {
       }
     })
   ]
-  
+
   depends_on = [helm_release.argocd]
 }
 
 resource "kubernetes_secret" "argocd_repo" {
   count = var.github_token != "" ? 1 : 0
-  
+
   metadata {
     name      = "${var.namespace}-repo"
     namespace = var.namespace
