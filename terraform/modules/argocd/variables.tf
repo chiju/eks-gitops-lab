@@ -39,3 +39,9 @@ variable "github_token" {
   default     = ""
   sensitive   = true
 }
+
+variable "enable_ha" {
+  description = "Enable high availability mode (2 replicas for controller, server, repo-server)"
+  type        = bool
+  default     = false
+}

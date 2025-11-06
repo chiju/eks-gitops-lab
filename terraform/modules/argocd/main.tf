@@ -10,19 +10,37 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
   version    = var.argocd_version
+  
+  timeout = 600
+  
+  values = var.enable_ha ? [
+    yamlencode({
+      controller = {
+        replicas = 2
+      }
+      server = {
+        replicas = 2
+      }
+      repoServer = {
+        replicas = 2
+      }
+    })
+  ] : []
 }
 
 resource "helm_release" "argocd_apps" {
   name       = "argocd-apps"
   repository = "oci://ghcr.io/argoproj/argo-helm"
   chart      = "argocd-apps"
-  namespace  = var.namespace
+  namespace  = kubernetes_namespace.argocd.metadata[0].name
+  
+  timeout = 600
 
   values = [
     yamlencode({
       applications = {
         app-of-apps = {
-          namespace  = var.namespace
+          namespace  = kubernetes_namespace.argocd.metadata[0].name
           finalizers = ["resources-finalizer.argocd.argoproj.io"]
           project    = "default"
           source = {
@@ -32,13 +50,16 @@ resource "helm_release" "argocd_apps" {
           }
           destination = {
             server    = "https://kubernetes.default.svc"
-            namespace = var.namespace
+            namespace = kubernetes_namespace.argocd.metadata[0].name
           }
           syncPolicy = {
             automated = {
               prune    = true
               selfHeal = true
             }
+            syncOptions = [
+              "CreateNamespace=true"
+            ]
           }
         }
       }
@@ -53,7 +74,7 @@ resource "kubernetes_secret" "argocd_repo" {
 
   metadata {
     name      = "${var.namespace}-repo"
-    namespace = var.namespace
+    namespace = kubernetes_namespace.argocd.metadata[0].name
     labels = {
       "argocd.argoproj.io/secret-type" = "repository"
     }
@@ -68,3 +89,4 @@ resource "kubernetes_secret" "argocd_repo" {
 
   depends_on = [helm_release.argocd]
 }
+
