@@ -12,6 +12,22 @@ kube-prometheus-stack:
     serviceAccount:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::432801802107:role/eks-lab-argocd-grafana-cloudwatch"
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+    dashboards:
+      default:
+        aws-eks:
+          file: dashboards/aws-eks-dashboard.json
     additionalDataSources:
       - name: Loki
         type: loki
