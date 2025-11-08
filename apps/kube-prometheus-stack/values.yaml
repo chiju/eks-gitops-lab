@@ -26,7 +26,7 @@ kube-prometheus-stack:
             path: /var/lib/grafana/dashboards/default
     dashboards:
       default:
-        aws-eks:
+        aws-eks-dashboard:
           file: dashboards/aws-eks-dashboard.json
     additionalDataSources:
       - name: Loki
