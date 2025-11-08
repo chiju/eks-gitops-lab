@@ -2499,8 +2499,8 @@
               "logGroups": [
                 {
                   "accountId": "432801802107",
-                  "arn": "arn:aws:logs:eu-central-1:432801802107:log-group:/aws/eks/fluentbit-cloudwatch/logs:*",
-                  "name": "/aws/eks/fluentbit-cloudwatch/logs"
+                  "arn": "arn:aws:logs:eu-central-1:432801802107:log-group:/aws/containerinsights/eks-lab-argocd/application:*",
+                  "name": "/aws/containerinsights/eks-lab-argocd/application"
                 }
               ],
               "matchExact": true,
