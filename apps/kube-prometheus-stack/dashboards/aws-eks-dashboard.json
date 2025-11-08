@@ -2408,8 +2408,8 @@
               "label": "",
               "logGroups": [
                 {
-                  "accountId": "675016942155",
-                  "arn": "arn:aws:logs:us-east-1:675016942155:log-group:/aws/eks/eks-lab-argocd/cluster:*",
+                  "accountId": "432801802107",
+                  "arn": "arn:aws:logs:eu-central-1:432801802107:log-group:/aws/eks/eks-lab-argocd/cluster:*",
                   "name": "/aws/eks/eks-lab-argocd/cluster"
                 }
               ],
@@ -2498,8 +2498,8 @@
               "label": "",
               "logGroups": [
                 {
-                  "accountId": "675016942155",
-                  "arn": "arn:aws:logs:us-east-1:675016942155:log-group:/aws/eks/fluentbit-cloudwatch/logs:*",
+                  "accountId": "432801802107",
+                  "arn": "arn:aws:logs:eu-central-1:432801802107:log-group:/aws/eks/fluentbit-cloudwatch/logs:*",
                   "name": "/aws/eks/fluentbit-cloudwatch/logs"
                 }
               ],
