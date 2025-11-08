@@ -12,18 +12,13 @@ kube-prometheus-stack:
     serviceAccount:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::432801802107:role/eks-lab-argocd-grafana-cloudwatch"
-    dashboardProviders:
-      dashboardproviders.yaml:
-        apiVersion: 1
-        providers:
-        - name: 'default'
-          orgId: 1
-          folder: ''
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/default
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        labelValue: "1"
+        folder: /tmp/dashboards
+        searchNamespace: monitoring
     dashboards:
       default:
         aws-eks-dashboard:
