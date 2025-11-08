@@ -2516,7 +2516,7 @@
               "statistic": "Average"
             }
           ],
-          "title": "[Fluentbit Cloudwatch Logs] -  ${datasource}",
+          "title": "[Container Insights Application Logs] -  ${datasource}",
           "type": "table"
         }
       ],
