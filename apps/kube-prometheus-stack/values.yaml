@@ -17,14 +17,6 @@ kube-prometheus-stack:
         enabled: true
         label: grafana_dashboard
         labelValue: "1"
-        folder: /tmp/dashboards
-        searchNamespace: monitoring
-    dashboards:
-      default:
-        aws-eks-dashboard:
-          gnetId: 20577
-          revision: 1
-          datasource: CloudWatch
     additionalDataSources:
       - name: Loki
         type: loki
