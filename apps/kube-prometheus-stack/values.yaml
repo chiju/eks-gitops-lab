@@ -27,7 +27,9 @@ kube-prometheus-stack:
     dashboards:
       default:
         aws-eks-dashboard:
-          file: dashboards/aws-eks-dashboard.json
+          gnetId: 20577
+          revision: 1
+          datasource: CloudWatch
     additionalDataSources:
       - name: Loki
         type: loki
