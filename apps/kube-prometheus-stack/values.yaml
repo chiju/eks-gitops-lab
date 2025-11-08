@@ -24,6 +24,7 @@ kube-prometheus-stack:
         jsonData:
           defaultRegion: eu-central-1
           authType: default
+          assumeRoleArn: "arn:aws:iam::432801802107:role/eks-lab-argocd-grafana-cloudwatch"
         isDefault: false
       - name: CloudWatch Logs
         type: cloudwatch
