@@ -38,14 +38,14 @@ kube-prometheus-stack:
         type: cloudwatch
         access: proxy
         jsonData:
-          defaultRegion: us-east-1
+          defaultRegion: eu-central-1
           authType: default
         isDefault: false
       - name: CloudWatch Logs
         type: cloudwatch
         access: proxy
         jsonData:
-          defaultRegion: us-east-1
+          defaultRegion: eu-central-1
           authType: default
           logGroups:
             - name: "/aws/eks/eks-lab-argocd/cluster"
