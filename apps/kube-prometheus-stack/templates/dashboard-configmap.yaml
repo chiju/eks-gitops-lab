@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-eks-dashboard-custom
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/instance: monitoring
+data:
+  aws-eks-dashboard.json: |
+{{ .Files.Get "templates/aws-eks-dashboard.json" | indent 4 }}
