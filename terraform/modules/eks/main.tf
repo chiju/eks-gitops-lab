@@ -98,6 +98,109 @@ resource "aws_eks_access_policy_association" "admin_policy" {
   depends_on = [aws_eks_access_entry.admin_user]
 }
 
+# EKS Addons - Best practice for managing core components
+resource "aws_eks_addon" "vpc_cni" {
+  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name               = "vpc-cni"
+  addon_version            = "v1.20.4-eksbuild.2"
+  resolve_conflicts_on_create = "OVERWRITE"
+
+  depends_on = [
+    aws_eks_node_group.system_nodes
+  ]
+
+  tags = {
+    Name = "${var.cluster_name}-vpc-cni-addon"
+  }
+}
+
+resource "aws_eks_addon" "coredns" {
+  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name               = "coredns"
+  addon_version            = "v1.11.3-eksbuild.2"
+  resolve_conflicts_on_create = "OVERWRITE"
+
+  depends_on = [
+    aws_eks_node_group.system_nodes
+  ]
+
+  tags = {
+    Name = "${var.cluster_name}-coredns-addon"
+  }
+}
+
+resource "aws_eks_addon" "kube_proxy" {
+  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name               = "kube-proxy"
+  addon_version            = "v1.34.0-eksbuild.4"
+  resolve_conflicts_on_create = "OVERWRITE"
+
+  depends_on = [
+    aws_eks_node_group.system_nodes
+  ]
+
+  tags = {
+    Name = "${var.cluster_name}-kube-proxy-addon"
+  }
+}
+
+# IAM Role for CloudWatch Container Insights
+resource "aws_iam_role" "cloudwatch_agent_role" {
+  name = "${var.cluster_name}-cloudwatch-agent-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.arn
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:sub" = "system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"
+            "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:aud" = "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.cluster_name}-cloudwatch-agent-role"
+  }
+}
+
+# Attach CloudWatch Agent policy
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent_policy" {
+  role       = aws_iam_role.cloudwatch_agent_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+# Add Container Insights permissions to node group role
+resource "aws_iam_role_policy_attachment" "node_group_cloudwatch_insights" {
+  role       = aws_iam_role.iam_role_node_group_lrn.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+# Enable Container Insights via CloudWatch agent addon
+resource "aws_eks_addon" "cloudwatch_observability" {
+  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name               = "amazon-cloudwatch-observability"
+  resolve_conflicts_on_create = "OVERWRITE"
+  service_account_role_arn = aws_iam_role.cloudwatch_agent_role.arn
+
+  depends_on = [
+    aws_eks_node_group.system_nodes,
+    aws_iam_role_policy_attachment.cloudwatch_agent_policy
+  ]
+
+  tags = {
+    Name = "${var.cluster_name}-cloudwatch-observability-addon"
+  }
+}
+
 # IAM Role for Grafana CloudWatch Access (IRSA)
 resource "aws_iam_role" "grafana_cloudwatch_role" {
   name = "${var.cluster_name}-grafana-cloudwatch"
