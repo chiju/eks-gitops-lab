@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-eks-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  aws-eks-dashboard.json: |
+    {{ (.Files.Get "dashboards/aws-eks-dashboard.json") | indent 4 }}

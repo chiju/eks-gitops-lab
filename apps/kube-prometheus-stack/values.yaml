@@ -17,6 +17,10 @@ kube-prometheus-stack:
         enabled: true
         label: grafana_dashboard
         labelValue: "1"
+        searchNamespace: ALL
+    dashboardsConfigMaps:
+      - configMapName: aws-eks-dashboard
+        fileName: aws-eks-dashboard.json
     additionalDataSources:
       - name: Loki
         type: loki
