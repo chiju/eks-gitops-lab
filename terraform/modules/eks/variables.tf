@@ -26,19 +26,19 @@ variable "node_instance_type" {
 }
 
 variable "desired_nodes" {
-  description = "Desired number of nodes"
+  description = "Desired number of system nodes"
   type        = number
   default     = 2
 }
 
 variable "min_nodes" {
-  description = "Minimum number of nodes"
+  description = "Minimum system nodes for availability"
   type        = number
   default     = 1
 }
 
 variable "max_nodes" {
-  description = "Maximum number of nodes"
+  description = "Maximum system nodes for scaling"
   type        = number
   default     = 3
 }

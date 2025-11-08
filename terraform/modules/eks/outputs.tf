@@ -25,5 +25,10 @@ output "oidc_provider_arn" {
 
 output "node_group_id" {
   description = "EKS node group ID"
-  value       = aws_eks_node_group.eks_node_group_lrn.id
+  value       = aws_eks_node_group.system_nodes.id
+}
+
+output "grafana_cloudwatch_role_arn" {
+  description = "IAM role ARN for Grafana CloudWatch access"
+  value       = aws_iam_role.grafana_cloudwatch_role.arn
 }
