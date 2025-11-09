@@ -15,13 +15,15 @@ spec:
     spec:
       containers:
       - name: app
-        image: nginx:alpine
+        image: polinux/stress
+        command: ["stress"]
+        args: ["--cpu", "1", "--vm", "1", "--vm-bytes", "50M", "--timeout", "3600s"]
         resources:
           requests:
-            cpu: 100m
+            cpu: 200m
             memory: 128Mi
           limits:
-            cpu: 200m
+            cpu: 500m
             memory: 256Mi
 ---
 apiVersion: v1
@@ -44,9 +46,13 @@ spec:
   scaleTargetRef:
     name: test-scale
   minReplicaCount: 1
-  maxReplicaCount: 20
+  maxReplicaCount: 30
   triggers:
   - type: cpu
     metricType: Utilization
     metadata:
       value: "50"
+  - type: memory
+    metricType: Utilization
+    metadata:
+      value: "60"
