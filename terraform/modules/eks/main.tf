@@ -255,6 +255,12 @@ resource "aws_eks_node_group" "system_nodes" {
   ami_type       = "AL2023_x86_64_STANDARD"
   capacity_type  = "ON_DEMAND"
 
+  taint {
+    key    = "CriticalAddonsOnly"
+    value  = "true"
+    effect = "NO_SCHEDULE"
+  }
+
   # Advanced node security via launch template (commented for learning)
   # launch_template {
   #   name    = aws_launch_template.node_security.name

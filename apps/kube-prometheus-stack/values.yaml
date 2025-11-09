@@ -6,6 +6,11 @@ kube-prometheus-stack:
         requests:
           cpu: 200m
           memory: 512Mi
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
       # Allow Prometheus to discover ServiceMonitors in all namespaces
       serviceMonitorNamespaceSelector: {}
       serviceMonitorSelector:
@@ -14,9 +19,21 @@ kube-prometheus-stack:
   grafana:
     enabled: true
     adminPassword: admin
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
     serviceAccount:
       annotations:
         eks.amazonaws.com/role-arn: "arn:aws:iam::432801802107:role/eks-lab-argocd-grafana-cloudwatch"
+  alertmanager:
+    alertmanagerSpec:
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
     sidecar:
       dashboards:
         enabled: true

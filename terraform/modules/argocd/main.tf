@@ -21,102 +21,60 @@ resource "helm_release" "argocd" {
         }
       }
       controller = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
       server = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
       repoServer = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
       redis = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
       dex = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
       notifications = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
       applicationSet = {
-        affinity = {
-          nodeAffinity = {
-            requiredDuringSchedulingIgnoredDuringExecution = {
-              nodeSelectorTerms = [{
-                matchExpressions = [{
-                  key      = "karpenter.sh/capacity-type"
-                  operator = "DoesNotExist"
-                }]
-              }]
-            }
-          }
-        }
+        tolerations = [{
+          key      = "CriticalAddonsOnly"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoSchedule"
+        }]
       }
     })
   ]
