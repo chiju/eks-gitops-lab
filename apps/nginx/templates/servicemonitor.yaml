@@ -6,7 +6,7 @@ metadata:
   namespace: nginx
   labels:
     app: {{ .Chart.Name }}
-    release: monitoring  # ← Key label for Prometheus discovery
+    release: monitoring
 spec:
   selector:
     matchLabels:
