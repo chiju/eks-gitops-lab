@@ -25,6 +25,24 @@ monitoring:
   serviceMonitor:
     enabled: true
     interval: 30s
+  dashboard:
+    enabled: true
+    panels:
+      - title: "Active Connections"
+        type: "stat"
+        query: "nginx_connections_active"
+      - title: "Requests per Second" 
+        type: "timeseries"
+        query: "rate(nginx_http_requests_total[5m])"
+      - title: "Connection States"
+        type: "timeseries"
+        queries:
+          - expr: "nginx_connections_reading"
+            legend: "Reading"
+          - expr: "nginx_connections_writing" 
+            legend: "Writing"
+          - expr: "nginx_connections_waiting"
+            legend: "Waiting"
 
 resources:
   limits:
