@@ -20,7 +20,91 @@ resource "helm_release" "argocd" {
           "timeout.reconciliation" = "30s"
         }
       }
-      global = {
+      controller = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
+      server = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
+      repoServer = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
+      redis = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
+      dex = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
+      notifications = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
+      applicationSet = {
         affinity = {
           nodeAffinity = {
             requiredDuringSchedulingIgnoredDuringExecution = {
