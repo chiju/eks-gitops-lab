@@ -448,3 +448,11 @@ Built with ❤️ for learning production-ready EKS, GitOps, and cloud-native be
 - ✅ S3 backend with native locking
 
 ## Fresh Deployment with S3 Backend
+
+**Deployment Date:** 2025-11-09
+
+### Fixes Applied:
+- ✅ S3 native locking (use_lockfile=true)
+- ✅ Terraform 1.13.5
+- ✅ CoreDNS toleration for tainted nodes
+- ✅ CloudTrail observability module
