@@ -333,3 +333,161 @@ resource "aws_eks_node_group" "system_nodes" {
 #     Name = "${var.cluster_name}-node-security"
 #   }
 # }
+
+# Karpenter IAM Role
+resource "aws_iam_role" "karpenter_controller" {
+  name = "KarpenterControllerRole-${var.cluster_name}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.arn
+      }
+      Condition = {
+        StringEquals = {
+          "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:sub" = "system:serviceaccount:karpenter:karpenter"
+          "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:aud" = "sts.amazonaws.com"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_policy" "karpenter_controller" {
+  name = "KarpenterControllerPolicy-${var.cluster_name}"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateFleet",
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateTags",
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeImages",
+          "ec2:DescribeInstances",
+          "ec2:DescribeInstanceTypeOfferings",
+          "ec2:DescribeInstanceTypes",
+          "ec2:DescribeLaunchTemplates",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSpotPriceHistory",
+          "ec2:DescribeSubnets",
+          "ec2:RunInstances",
+          "ec2:TerminateInstances",
+          "pricing:GetProducts",
+          "ssm:GetParameter"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "eks:DescribeCluster"
+        ]
+        Resource = aws_eks_cluster.eks_cluster_lrn.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = aws_iam_role.iam_role_node_group_lrn.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl",
+          "sqs:ReceiveMessage"
+        ]
+        Resource = aws_sqs_queue.karpenter.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "karpenter_controller" {
+  role       = aws_iam_role.karpenter_controller.name
+  policy_arn = aws_iam_policy.karpenter_controller.arn
+}
+
+# Karpenter SQS Queue for Spot interruption handling
+resource "aws_sqs_queue" "karpenter" {
+  name                      = var.cluster_name
+  message_retention_seconds = 300
+  sqs_managed_sse_enabled   = true
+}
+
+resource "aws_sqs_queue_policy" "karpenter" {
+  queue_url = aws_sqs_queue.karpenter.url
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = [
+          "events.amazonaws.com",
+          "sqs.amazonaws.com"
+        ]
+      }
+      Action   = "sqs:SendMessage"
+      Resource = aws_sqs_queue.karpenter.arn
+    }]
+  })
+}
+
+# EventBridge rules for Spot interruptions
+resource "aws_cloudwatch_event_rule" "karpenter_spot_interruption" {
+  name        = "${var.cluster_name}-spot-interruption"
+  description = "Karpenter Spot Instance Interruption Warning"
+
+  event_pattern = jsonencode({
+    source      = ["aws.ec2"]
+    detail-type = ["EC2 Spot Instance Interruption Warning"]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "karpenter_spot_interruption" {
+  rule      = aws_cloudwatch_event_rule.karpenter_spot_interruption.name
+  target_id = "KarpenterSpotInterruptionQueue"
+  arn       = aws_sqs_queue.karpenter.arn
+}
+
+resource "aws_cloudwatch_event_rule" "karpenter_rebalance" {
+  name        = "${var.cluster_name}-rebalance"
+  description = "Karpenter EC2 Instance Rebalance Recommendation"
+
+  event_pattern = jsonencode({
+    source      = ["aws.ec2"]
+    detail-type = ["EC2 Instance Rebalance Recommendation"]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "karpenter_rebalance" {
+  rule      = aws_cloudwatch_event_rule.karpenter_rebalance.name
+  target_id = "KarpenterRebalanceQueue"
+  arn       = aws_sqs_queue.karpenter.arn
+}
+
+resource "aws_cloudwatch_event_rule" "karpenter_instance_state_change" {
+  name        = "${var.cluster_name}-instance-state-change"
+  description = "Karpenter EC2 Instance State-change Notification"
+
+  event_pattern = jsonencode({
+    source      = ["aws.ec2"]
+    detail-type = ["EC2 Instance State-change Notification"]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "karpenter_instance_state_change" {
+  rule      = aws_cloudwatch_event_rule.karpenter_instance_state_change.name
+  target_id = "KarpenterInstanceStateChangeQueue"
+  arn       = aws_sqs_queue.karpenter.arn
+}

@@ -1,0 +1,18 @@
+karpenter:
+  settings:
+    clusterName: eks-lab-argocd
+    clusterEndpoint: https://9A0133B6873DA6CB9469283436C60216.gr7.eu-central-1.eks.amazonaws.com
+    interruptionQueue: eks-lab-argocd
+  
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::432801802107:role/KarpenterControllerRole-eks-lab-argocd"
+  
+  controller:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
