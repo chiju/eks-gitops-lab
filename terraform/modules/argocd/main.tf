@@ -13,19 +13,7 @@ resource "helm_release" "argocd" {
   
   timeout = 600
   
-  values = var.enable_ha ? [
-    yamlencode({
-      controller = {
-        replicas = 2
-      }
-      server = {
-        replicas = 2
-      }
-      repoServer = {
-        replicas = 2
-      }
-    })
-  ] : [
+  values = [
     yamlencode({
       configs = {
         cm = {
