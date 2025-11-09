@@ -2,12 +2,12 @@ name: Terraform CI/CD
 
 on:
   pull_request:
-    branches: [main, bootstrap]
+    branches: [bootstrap]
     paths:
       - 'terraform/**'
       - '.github/workflows/terraform.yml'
   push:
-    branches: [main, bootstrap]
+    branches: [bootstrap]
     paths:
       - 'terraform/**'
   workflow_dispatch:
@@ -124,7 +124,7 @@ jobs:
     name: Apply
     runs-on: ubuntu-latest
     needs: [validate, security]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/bootstrap' && github.event_name == 'push'
     environment: production
     defaults:
       run:

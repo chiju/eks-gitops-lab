@@ -2,13 +2,13 @@ name: Helm Charts CI
 
 on:
   pull_request:
-    branches: [main, bootstrap]
+    branches: [bootstrap]
     paths:
       - 'apps/**'
       - 'argocd-apps/**'
       - '.github/workflows/helm.yml'
   push:
-    branches: [main, bootstrap]
+    branches: [bootstrap]
     paths:
       - 'apps/**'
       - 'argocd-apps/**'
