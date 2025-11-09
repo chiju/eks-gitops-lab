@@ -129,6 +129,17 @@ resource "aws_eks_addon" "coredns" {
   addon_version               = "v1.11.3-eksbuild.2"
   resolve_conflicts_on_create = "OVERWRITE"
 
+  configuration_values = jsonencode({
+    tolerations = [
+      {
+        key      = "CriticalAddonsOnly"
+        operator = "Equal"
+        value    = "true"
+        effect   = "NoSchedule"
+      }
+    ]
+  })
+
   depends_on = [
     aws_eks_node_group.system_nodes
   ]
