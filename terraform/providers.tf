@@ -18,7 +18,7 @@ terraform {
 
 provider "aws" {
   region  = var.region
-  profile = var.aws_profile
+  profile = var.aws_profile != "" ? var.aws_profile : null
 
   # Additional safety check - only allow specific account
   allowed_account_ids = [var.allowed_account_id]
