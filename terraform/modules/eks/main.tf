@@ -51,19 +51,19 @@ resource "time_sleep" "wait_for_eks_cleanup" {
 
 # EKS Cluster
 resource "aws_eks_cluster" "eks_cluster_lrn" {
-  name = var.cluster_name
+  name     = var.cluster_name
   role_arn = aws_iam_role.iam_role_eks_lrn.arn
-  version = var.kubernetes_version
-  
+  version  = var.kubernetes_version
+
   # Enable Access Entries authentication mode
   access_config {
     authentication_mode = "API_AND_CONFIG_MAP"
   }
-  
+
   vpc_config {
-    subnet_ids = concat(var.public_subnet_ids, var.private_subnet_ids)
+    subnet_ids              = concat(var.public_subnet_ids, var.private_subnet_ids)
     endpoint_private_access = true
-    endpoint_public_access = true
+    endpoint_public_access  = true
   }
 
   # Encrypt Kubernetes secrets at rest using KMS
@@ -79,9 +79,9 @@ resource "aws_eks_cluster" "eks_cluster_lrn" {
   # Logs go to CloudWatch: /aws/eks/{cluster-name}/cluster
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
-  depends_on = [ 
+  depends_on = [
     aws_iam_role_policy_attachment.iam_role_policy_attachment_eks_policy_lrn
-   ]
+  ]
   tags = {
     Name = var.cluster_name
   }
@@ -91,7 +91,7 @@ resource "aws_eks_cluster" "eks_cluster_lrn" {
 resource "aws_eks_access_entry" "admin_user" {
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
   principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/infra_user"
-  type         = "STANDARD"
+  type          = "STANDARD"
 }
 
 # Use AWS managed policy instead of custom ClusterRoleBinding
@@ -109,9 +109,9 @@ resource "aws_eks_access_policy_association" "admin_policy" {
 
 # EKS Addons - Best practice for managing core components
 resource "aws_eks_addon" "vpc_cni" {
-  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
-  addon_name               = "vpc-cni"
-  addon_version            = "v1.20.4-eksbuild.2"
+  cluster_name                = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name                  = "vpc-cni"
+  addon_version               = "v1.20.4-eksbuild.2"
   resolve_conflicts_on_create = "OVERWRITE"
 
   depends_on = [
@@ -124,9 +124,9 @@ resource "aws_eks_addon" "vpc_cni" {
 }
 
 resource "aws_eks_addon" "coredns" {
-  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
-  addon_name               = "coredns"
-  addon_version            = "v1.11.3-eksbuild.2"
+  cluster_name                = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name                  = "coredns"
+  addon_version               = "v1.11.3-eksbuild.2"
   resolve_conflicts_on_create = "OVERWRITE"
 
   depends_on = [
@@ -139,9 +139,9 @@ resource "aws_eks_addon" "coredns" {
 }
 
 resource "aws_eks_addon" "kube_proxy" {
-  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
-  addon_name               = "kube-proxy"
-  addon_version            = "v1.34.0-eksbuild.4"
+  cluster_name                = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name                  = "kube-proxy"
+  addon_version               = "v1.34.0-eksbuild.4"
   resolve_conflicts_on_create = "OVERWRITE"
 
   depends_on = [
@@ -154,8 +154,8 @@ resource "aws_eks_addon" "kube_proxy" {
 }
 
 resource "aws_eks_addon" "metrics_server" {
-  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
-  addon_name               = "metrics-server"
+  cluster_name                = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name                  = "metrics-server"
   resolve_conflicts_on_create = "OVERWRITE"
 
   depends_on = [
@@ -181,8 +181,8 @@ resource "aws_iam_role" "grafana_cloudwatch_role" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer, "https://", "")}:sub": "system:serviceaccount:monitoring:monitoring-grafana"
-          "${replace(aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer, "https://", "")}:aud": "sts.amazonaws.com"
+          "${replace(aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer, "https://", "")}:sub" : "system:serviceaccount:monitoring:monitoring-grafana"
+          "${replace(aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer, "https://", "")}:aud" : "sts.amazonaws.com"
         }
       }
     }]
@@ -209,9 +209,9 @@ data "tls_certificate" "tls_certificate_eks_cluster_lrn" {
 
 # OIDC Provider for IRSA
 resource "aws_iam_openid_connect_provider" "iam_openid_connect_provider_eks_cluster_lrn" {
-  client_id_list = ["sts.amazonaws.com"]
+  client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.tls_certificate_eks_cluster_lrn.certificates[0].sha1_fingerprint]
-  url = aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer
+  url             = aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer
   tags = {
     Name = "${var.cluster_name}-oidc-provider"
   }

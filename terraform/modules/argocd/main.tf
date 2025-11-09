@@ -10,9 +10,9 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
   version    = var.argocd_version
-  
+
   timeout = 600
-  
+
   values = [
     yamlencode({
       configs = {
@@ -169,7 +169,7 @@ resource "helm_release" "argocd_apps" {
   repository = "oci://ghcr.io/argoproj/argo-helm"
   chart      = "argocd-apps"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
-  
+
   timeout = 600
 
   values = [
