@@ -91,12 +91,20 @@ Attach policies:
 
 Go to: **Settings → Secrets and variables → Actions**
 
-Add:
+Add these secrets:
 ```
 AWS_ROLE_ARN = arn:aws:iam::432801802107:role/GitHubActionsRole
+ARGOCD_GITHUB_TOKEN = ghp_xxxxxxxxxxxx
 ```
 
-**Note:** `GITHUB_TOKEN` is automatically provided by GitHub Actions for ArgoCD repo access.
+**Create GitHub Token:**
+1. Go to: https://github.com/settings/tokens
+2. Generate new token (classic)
+3. Name: `ArgoCD Repo Access`
+4. Scopes: ✅ `repo` (full control of private repositories)
+5. Copy token and add as `ARGOCD_GITHUB_TOKEN` secret
+
+**Why needed:** ArgoCD running in the cluster needs this token to sync apps from your private repo.
 
 ### 4. Create Production Environment
 
