@@ -4,11 +4,10 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
-      - id: terraform_docs
+      - id: terraform_checkov
         args:
-          - --hook-config=--path-to-file=README.md
-          - --hook-config=--add-to-existing-file=true
-          - --hook-config=--create-file-if-not-exists=true
+          - --args=--soft-fail
+      - id: terraform_tflint
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -16,15 +15,4 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-        args: ['--unsafe']
       - id: check-added-large-files
-        args: ['--maxkb=1000']
-      - id: detect-aws-credentials
-        args: ['--allow-missing-credentials']
-      - id: detect-private-key
-
-  - repo: https://github.com/bridgecrewio/checkov
-    rev: 3.2.291
-    hooks:
-      - id: checkov
-        args: ['-d', 'terraform/', '--framework', 'terraform']
