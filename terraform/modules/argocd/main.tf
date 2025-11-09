@@ -27,6 +27,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
       server = {
         tolerations = [{
@@ -35,6 +47,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
       repoServer = {
         tolerations = [{
@@ -43,6 +67,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
       redis = {
         tolerations = [{
@@ -51,6 +87,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
       dex = {
         tolerations = [{
@@ -59,6 +107,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
       notifications = {
         tolerations = [{
@@ -67,6 +127,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
       applicationSet = {
         tolerations = [{
@@ -75,6 +147,18 @@ resource "helm_release" "argocd" {
           value    = "true"
           effect   = "NoSchedule"
         }]
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "node-role.kubernetes.io/system"
+                  operator = "Exists"
+                }]
+              }]
+            }
+          }
+        }
       }
     })
   ]

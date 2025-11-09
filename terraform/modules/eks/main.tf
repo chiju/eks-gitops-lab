@@ -255,6 +255,10 @@ resource "aws_eks_node_group" "system_nodes" {
   ami_type       = "AL2023_x86_64_STANDARD"
   capacity_type  = "ON_DEMAND"
 
+  labels = {
+    "node-role.kubernetes.io/system" = "true"
+  }
+
   taint {
     key    = "CriticalAddonsOnly"
     value  = "true"
