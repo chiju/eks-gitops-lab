@@ -20,6 +20,20 @@ resource "helm_release" "argocd" {
           "timeout.reconciliation" = "30s"
         }
       }
+      global = {
+        affinity = {
+          nodeAffinity = {
+            requiredDuringSchedulingIgnoredDuringExecution = {
+              nodeSelectorTerms = [{
+                matchExpressions = [{
+                  key      = "karpenter.sh/capacity-type"
+                  operator = "DoesNotExist"
+                }]
+              }]
+            }
+          }
+        }
+      }
     })
   ]
 }
