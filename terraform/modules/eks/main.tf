@@ -334,6 +334,13 @@ resource "aws_eks_node_group" "system_nodes" {
 #   }
 # }
 
+# Tag cluster security group for Karpenter discovery
+resource "aws_ec2_tag" "cluster_sg_karpenter" {
+  resource_id = aws_eks_cluster.eks_cluster_lrn.vpc_config[0].cluster_security_group_id
+  key         = "karpenter.sh/discovery"
+  value       = var.cluster_name
+}
+
 # Karpenter IAM Role
 resource "aws_iam_role" "karpenter_controller" {
   name = "KarpenterControllerRole-${var.cluster_name}"

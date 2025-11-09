@@ -147,6 +147,7 @@ resource "aws_subnet" "subnet_private_lrn" {
     Name                                        = "${var.cluster_name}-subnet_private_lrn-${var.availability_zones[count.index]}"
     "kubernetes.io/role/internal-elb"           = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "karpenter.sh/discovery"                    = var.cluster_name
   }
 }
 
