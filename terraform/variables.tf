@@ -76,16 +76,3 @@ variable "max_nodes" {
   default     = 3
 }
 
-# GitHub credentials for ArgoCD
-variable "github_username" {
-  description = "GitHub username for ArgoCD repo access"
-  type        = string
-  default     = "chiju"
-}
-
-variable "github_token" {
-  description = "GitHub personal access token for ArgoCD repo access"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
