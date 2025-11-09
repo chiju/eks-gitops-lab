@@ -25,7 +25,15 @@ resource "helm_release" "argocd" {
         replicas = 2
       }
     })
-  ] : []
+  ] : [
+    yamlencode({
+      configs = {
+        cm = {
+          "timeout.reconciliation" = "30s"
+        }
+      }
+    })
+  ]
 }
 
 resource "helm_release" "argocd_apps" {
