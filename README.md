@@ -440,3 +440,8 @@ make clean  # Force delete Karpenter resources
 
 Built with ❤️ for learning production-ready EKS, GitOps, and cloud-native best practices.
 # CI/CD Pipeline Test
+
+## CI/CD Pipeline Status
+- ✅ GitHub Actions configured
+- ✅ AWS OIDC authentication
+- ✅ Terraform automation
