@@ -1,98 +1,99 @@
 {
   "id": null,
-  "title": "AWS EKS Cost Monitoring",
-  "tags": ["aws", "eks", "cost", "cloudwatch"],
+  "title": "AWS Cost & Billing Analytics",
+  "tags": ["aws", "cost", "billing", "optimization"],
   "timezone": "browser",
   "schemaVersion": 30,
   "version": 1,
-  "refresh": "1m",
+  "refresh": "5m",
   "time": {
-    "from": "now-3h",
+    "from": "now-7d",
     "to": "now"
   },
   "panels": [
     {
       "id": 1,
-      "title": "EKS Control Plane Cost",
-      "type": "stat",
-      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+      "title": "Daily AWS Spend Trend",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
           "unit": "currencyUSD"
         }
       },
-      "options": {
-        "textMode": "value_and_name",
-        "colorMode": "background"
-      },
       "targets": [
         {
           "datasource": "CloudWatch",
-          "namespace": "AWS/Usage",
-          "metricName": "ResourceCount",
+          "namespace": "AWS/Billing",
+          "metricName": "EstimatedCharges",
           "dimensions": {
-            "Type": "Resource",
-            "Resource": "EKS-Cluster",
-            "Service": "EKS",
-            "Class": "None"
+            "Currency": "USD"
           },
-          "statistic": "Sum",
-          "period": "3600",
-          "region": "eu-central-1",
-          "expression": "$m1 * 0.10"
+          "statistic": "Maximum",
+          "period": "86400",
+          "region": "us-east-1"
         }
       ]
     },
     {
       "id": 2,
-      "title": "EC2 Node 1 CPU Usage",
+      "title": "Cost by AWS Service",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "percent",
-          "max": 100,
-          "min": 0
+          "unit": "currencyUSD"
         }
       },
       "targets": [
         {
           "datasource": "CloudWatch",
-          "namespace": "AWS/EC2",
-          "metricName": "CPUUtilization",
+          "namespace": "AWS/Billing",
+          "metricName": "EstimatedCharges",
           "dimensions": {
-            "InstanceId": "i-0669986d6e4a8762d"
+            "Currency": "USD",
+            "ServiceName": "Amazon Elastic Kubernetes Service"
           },
-          "statistic": "Average",
-          "period": "300",
-          "region": "eu-central-1"
+          "statistic": "Maximum",
+          "period": "86400",
+          "region": "us-east-1"
+        },
+        {
+          "datasource": "CloudWatch",
+          "namespace": "AWS/Billing",
+          "metricName": "EstimatedCharges",
+          "dimensions": {
+            "Currency": "USD",
+            "ServiceName": "Amazon Elastic Compute Cloud - Compute"
+          },
+          "statistic": "Maximum",
+          "period": "86400",
+          "region": "us-east-1"
         }
       ]
     },
     {
       "id": 3,
-      "title": "EC2 Node 2 CPU Usage", 
+      "title": "EKS Control Plane API Errors",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "percent",
-          "max": 100,
-          "min": 0
+          "unit": "short"
         }
       },
       "targets": [
         {
           "datasource": "CloudWatch",
-          "namespace": "AWS/EC2",
-          "metricName": "CPUUtilization",
+          "namespace": "AWS/EKS",
+          "metricName": "cluster_failed_request_count",
           "dimensions": {
-            "InstanceId": "i-08e49a452bc303e44"
+            "ClusterName": "eks-lab-argocd"
           },
-          "statistic": "Average",
+          "statistic": "Sum",
           "period": "300",
           "region": "eu-central-1"
         }
@@ -100,119 +101,97 @@
     },
     {
       "id": 4,
-      "title": "Network In (Both Nodes)",
+      "title": "VPC Flow Logs - Rejected Connections",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "bytes"
+          "unit": "short"
         }
       },
       "targets": [
         {
-          "datasource": "CloudWatch",
-          "namespace": "AWS/EC2",
-          "metricName": "NetworkIn",
-          "dimensions": {
-            "InstanceId": "i-0669986d6e4a8762d"
-          },
-          "statistic": "Sum",
-          "period": "300",
-          "region": "eu-central-1"
-        },
-        {
-          "datasource": "CloudWatch",
-          "namespace": "AWS/EC2", 
-          "metricName": "NetworkIn",
-          "dimensions": {
-            "InstanceId": "i-08e49a452bc303e44"
-          },
-          "statistic": "Sum",
-          "period": "300",
+          "datasource": "CloudWatch Logs",
+          "logGroups": ["/aws/vpc/flowlogs/eks-lab-argocd"],
+          "query": "fields @timestamp, srcaddr, dstaddr, action | filter action = \"REJECT\" | stats count() by bin(5m)",
           "region": "eu-central-1"
         }
       ]
     },
     {
       "id": 5,
-      "title": "Network Out (Both Nodes)",
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "unit": "bytes"
-        }
-      },
-      "targets": [
-        {
-          "datasource": "CloudWatch",
-          "namespace": "AWS/EC2",
-          "metricName": "NetworkOut",
-          "dimensions": {
-            "InstanceId": "i-0669986d6e4a8762d"
-          },
-          "statistic": "Sum",
-          "period": "300",
-          "region": "eu-central-1"
-        },
-        {
-          "datasource": "CloudWatch",
-          "namespace": "AWS/EC2",
-          "metricName": "NetworkOut", 
-          "dimensions": {
-            "InstanceId": "i-08e49a452bc303e44"
-          },
-          "statistic": "Sum",
-          "period": "300",
-          "region": "eu-central-1"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "title": "EBS Volume Read IOPS",
+      "title": "Data Transfer Costs (GB)",
       "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "iops"
+          "unit": "currencyUSD"
         }
       },
       "targets": [
         {
           "datasource": "CloudWatch",
-          "namespace": "AWS/EBS",
-          "metricName": "VolumeReadOps",
+          "namespace": "AWS/Billing",
+          "metricName": "EstimatedCharges",
           "dimensions": {
-            "VolumeId": "vol-0ddf34bbcfa3efa74"
+            "Currency": "USD",
+            "ServiceName": "Amazon Elastic Compute Cloud - Data Transfer"
           },
-          "statistic": "Sum",
-          "period": "300",
-          "region": "eu-central-1"
-        },
+          "statistic": "Maximum",
+          "period": "86400",
+          "region": "us-east-1"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "CloudWatch Logs Ingestion Cost",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "currencyUSD"
+        }
+      },
+      "targets": [
         {
           "datasource": "CloudWatch",
-          "namespace": "AWS/EBS",
-          "metricName": "VolumeReadOps",
+          "namespace": "AWS/Billing",
+          "metricName": "EstimatedCharges",
           "dimensions": {
-            "VolumeId": "vol-029d1e8d7ccdee3ce"
+            "Currency": "USD",
+            "ServiceName": "Amazon CloudWatch Logs"
           },
-          "statistic": "Sum", 
-          "period": "300",
-          "region": "eu-central-1"
+          "statistic": "Maximum",
+          "period": "86400",
+          "region": "us-east-1"
         }
       ]
     },
     {
       "id": 7,
-      "title": "Cost Summary",
+      "title": "EKS Control Plane Logs - Error Analysis",
+      "type": "logs",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24},
+      "targets": [
+        {
+          "datasource": "CloudWatch Logs",
+          "logGroups": ["/aws/eks/eks-lab-argocd/cluster"],
+          "query": "fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc | limit 20",
+          "region": "eu-central-1"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Cost Optimization Alerts",
       "type": "text",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 32},
       "options": {
-        "content": "## Current AWS Costs\n\n**EKS Control Plane:** $0.10/hour = $72/month\n\n**2x t3.medium nodes:** $0.0832/hour = $59.90/month\n\n**EBS Storage (40GB GP3):** $3.20/month\n\n**Data Transfer:** ~$10-20/month\n\n---\n\n**Total Estimated:** $145-165/month\n\n**Current Hourly:** ~$0.18/hour\n\n**Running Since:** 08:28 UTC today"
+        "content": "## 💰 Cost Optimization Opportunities\n\n🔍 **Monitor these CloudWatch-only metrics:**\n- **Billing alerts** when costs exceed thresholds\n- **Data transfer patterns** to optimize network costs  \n- **EKS control plane errors** affecting availability\n- **VPC flow logs** for security and network optimization\n- **Service-specific costs** for rightsizing decisions\n\n⚠️ **Set up billing alerts for:**\n- Daily spend > $10\n- Monthly projection > $200\n- Unusual service cost spikes"
       }
     }
   ]
