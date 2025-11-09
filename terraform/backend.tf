@@ -1,3 +1,4 @@
+# S3 backend with native state locking (no DynamoDB needed)
 terraform {
   backend "s3" {
     bucket  = "eks-lab-argocd-terraform-state"
