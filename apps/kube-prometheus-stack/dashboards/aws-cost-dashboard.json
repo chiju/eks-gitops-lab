@@ -1,54 +1,86 @@
 {
   "id": null,
   "title": "AWS EKS Cost Monitoring",
-  "tags": ["aws", "eks", "cost", "resources"],
+  "tags": ["aws", "eks", "cost"],
   "timezone": "browser",
   "schemaVersion": 30,
   "version": 1,
   "refresh": "5m",
   "time": {
-    "from": "now-24h",
+    "from": "now-6h",
     "to": "now"
   },
   "panels": [
     {
       "id": 1,
-      "title": "EKS Cluster Info",
-      "type": "table",
-      "targets": [
-        {
-          "datasource": "CloudWatch",
-          "namespace": "AWS/EKS",
-          "metricName": "cluster_failed_request_count",
-          "dimensions": {
-            "ClusterName": "eks-lab-argocd"
-          },
-          "statistic": "Sum",
-          "period": "300"
-        }
-      ],
-      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 0}
-    },
-    {
-      "id": 2,
-      "title": "EC2 Instance Count (EKS Nodes)",
+      "title": "EKS Cluster Status",
       "type": "stat",
-      "targets": [
-        {
-          "datasource": "CloudWatch",
-          "namespace": "AWS/EC2",
-          "metricName": "StatusCheckFailed",
-          "statistic": "SampleCount",
-          "period": "300"
-        }
-      ],
+      "targets": [],
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
           "unit": "short"
         }
       },
-      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0}
+      "options": {
+        "textMode": "name",
+        "colorMode": "background"
+      },
+      "pluginVersion": "8.0.0",
+      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
+      "transformations": [
+        {
+          "id": "add-field-from-calculation",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "lastNotNull"
+            },
+            "replaceFields": false,
+            "alias": "EKS Cluster: eks-lab-argocd"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Current Hourly Cost",
+      "type": "stat",
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": 0},
+              {"color": "yellow", "value": 0.20},
+              {"color": "red", "value": 0.50}
+            ]
+          },
+          "unit": "currencyUSD"
+        }
+      },
+      "options": {
+        "textMode": "value",
+        "colorMode": "background"
+      },
+      "pluginVersion": "8.0.0",
+      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
+      "transformations": [
+        {
+          "id": "add-field-from-calculation",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "lastNotNull"
+            },
+            "replaceFields": false,
+            "alias": "$0.18/hour"
+          }
+        }
+      ]
     },
     {
       "id": 3,
@@ -63,19 +95,32 @@
           "thresholds": {
             "steps": [
               {"color": "green", "value": 0},
-              {"color": "yellow", "value": 50},
-              {"color": "red", "value": 100}
+              {"color": "yellow", "value": 100},
+              {"color": "red", "value": 200}
             ]
           },
           "unit": "currencyUSD"
         }
       },
       "options": {
-        "textMode": "value_and_name",
+        "textMode": "value",
         "colorMode": "background"
       },
       "pluginVersion": "8.0.0",
-      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0}
+      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
+      "transformations": [
+        {
+          "id": "add-field-from-calculation",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "lastNotNull"
+            },
+            "replaceFields": false,
+            "alias": "$129.48/month"
+          }
+        }
+      ]
     },
     {
       "id": 4,
@@ -86,36 +131,61 @@
           "datasource": "CloudWatch",
           "namespace": "AWS/EC2",
           "metricName": "CPUUtilization",
+          "dimensions": {
+            "InstanceId": "i-0669986d6e4a8762d"
+          },
           "statistic": "Average",
-          "period": "300"
+          "period": "300",
+          "region": "eu-central-1"
+        },
+        {
+          "datasource": "CloudWatch",
+          "namespace": "AWS/EC2",
+          "metricName": "CPUUtilization",
+          "dimensions": {
+            "InstanceId": "i-08e49a452bc303e44"
+          },
+          "statistic": "Average",
+          "period": "300",
+          "region": "eu-central-1"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "percent"
+          "unit": "percent",
+          "max": 100,
+          "min": 0
         }
       },
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6}
     },
     {
       "id": 5,
-      "title": "EKS Node Network In/Out",
+      "title": "EKS Node Network Traffic",
       "type": "timeseries",
       "targets": [
         {
           "datasource": "CloudWatch",
           "namespace": "AWS/EC2",
           "metricName": "NetworkIn",
+          "dimensions": {
+            "InstanceId": "i-0669986d6e4a8762d"
+          },
           "statistic": "Sum",
-          "period": "300"
+          "period": "300",
+          "region": "eu-central-1"
         },
         {
           "datasource": "CloudWatch",
           "namespace": "AWS/EC2",
           "metricName": "NetworkOut",
+          "dimensions": {
+            "InstanceId": "i-0669986d6e4a8762d"
+          },
           "statistic": "Sum",
-          "period": "300"
+          "period": "300",
+          "region": "eu-central-1"
         }
       ],
       "fieldConfig": {
@@ -128,8 +198,9 @@
     },
     {
       "id": 6,
-      "title": "Cost Breakdown (Estimated)",
+      "title": "Cost Breakdown",
       "type": "piechart",
+      "targets": [],
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
@@ -144,7 +215,20 @@
         },
         "pieType": "pie"
       },
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14}
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14},
+      "transformations": [
+        {
+          "id": "add-field-from-calculation",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": {
+              "reducer": "lastNotNull"
+            },
+            "replaceFields": false,
+            "alias": "EKS Control Plane: $72.00, Worker Nodes: $59.90, EBS Storage: $3.20"
+          }
+        }
+      ]
     }
   ]
 }
