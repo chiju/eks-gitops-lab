@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-scale
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-scale
+  template:
+    metadata:
+      labels:
+        app: test-scale
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-scale
+  namespace: default
+spec:
+  selector:
+    app: test-scale
+  ports:
+  - port: 80
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: test-scale
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: test-scale
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "50"
