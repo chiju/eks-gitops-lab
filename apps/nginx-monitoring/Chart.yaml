@@ -1,0 +1,4 @@
+apiVersion: v2
+name: nginx-monitoring
+description: nginx ServiceMonitor for Prometheus
+version: 0.1.0
