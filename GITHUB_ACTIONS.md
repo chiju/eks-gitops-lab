@@ -96,6 +96,8 @@ Add:
 AWS_ROLE_ARN = arn:aws:iam::432801802107:role/GitHubActionsRole
 ```
 
+**Note:** `GITHUB_TOKEN` is automatically provided by GitHub Actions for ArgoCD repo access.
+
 ### 4. Create Production Environment
 
 Go to: **Settings → Environments → New environment**

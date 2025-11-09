@@ -65,6 +65,10 @@ Complete production-ready EKS cluster with GitOps (ArgoCD), autoscaling (KEDA + 
 ```bash
 cd terraform
 terraform init
+
+# Set GitHub token for ArgoCD private repo access
+export TF_VAR_github_token="ghp_your_token_here"
+
 terraform apply
 ```
 
