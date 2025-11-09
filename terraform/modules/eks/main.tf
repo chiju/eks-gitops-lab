@@ -144,46 +144,6 @@ resource "aws_eks_addon" "kube_proxy" {
   }
 }
 
-# IAM Role for CloudWatch Container Insights
-resource "aws_iam_role" "cloudwatch_agent_role" {
-  name = "${var.cluster_name}-cloudwatch-agent-role"
-  
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.arn
-        }
-        Condition = {
-          StringEquals = {
-            "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:sub" = "system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"
-            "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:aud" = "sts.amazonaws.com"
-          }
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.cluster_name}-cloudwatch-agent-role"
-  }
-}
-
-# Attach CloudWatch Agent policy
-resource "aws_iam_role_policy_attachment" "cloudwatch_agent_policy" {
-  role       = aws_iam_role.cloudwatch_agent_role.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-}
-
-# Add Container Insights permissions to node group role
-resource "aws_iam_role_policy_attachment" "node_group_cloudwatch_insights" {
-  role       = aws_iam_role.iam_role_node_group_lrn.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-}
-
 resource "aws_eks_addon" "metrics_server" {
   cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
   addon_name               = "metrics-server"
@@ -195,23 +155,6 @@ resource "aws_eks_addon" "metrics_server" {
 
   tags = {
     Name = "${var.cluster_name}-metrics-server-addon"
-  }
-}
-
-# Enable Container Insights via CloudWatch agent addon
-resource "aws_eks_addon" "cloudwatch_observability" {
-  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
-  addon_name               = "amazon-cloudwatch-observability"
-  resolve_conflicts_on_create = "OVERWRITE"
-  service_account_role_arn = aws_iam_role.cloudwatch_agent_role.arn
-
-  depends_on = [
-    aws_eks_node_group.system_nodes,
-    aws_iam_role_policy_attachment.cloudwatch_agent_policy
-  ]
-
-  tags = {
-    Name = "${var.cluster_name}-cloudwatch-observability-addon"
   }
 }
 
