@@ -2,6 +2,8 @@ apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
+  finalizers:
+  - karpenter.sh/termination
 spec:
   template:
     spec:

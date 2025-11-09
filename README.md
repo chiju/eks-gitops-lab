@@ -387,6 +387,27 @@ eks-lab-argocd/
 └── README.md                       # This file
 ```
 
+## 🗑️ Cleanup
+
+### Proper Destroy Order
+
+**Important:** Delete Karpenter first to avoid Spot instance conflicts.
+
+```bash
+# Option 1: Using Makefile (recommended)
+make destroy
+
+# Option 2: Manual steps
+kubectl delete application karpenter -n argocd
+sleep 60  # Wait for nodes to terminate
+cd terraform && terraform destroy
+```
+
+### Quick Cleanup (if stuck)
+```bash
+make clean  # Force delete Karpenter resources
+```
+
 ## 🚧 Roadmap
 
 - [ ] Add HPA for other workloads
