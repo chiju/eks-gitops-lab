@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: test-scale
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chiju/eks-lab-argocd.git
+    targetRevision: bootstrap
+    path: apps/test-scale
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

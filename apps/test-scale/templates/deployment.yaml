@@ -1,23 +1,24 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: test-scale
+  name: test-scale-load
   namespace: default
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: test-scale
+  parallelism: 10
+  completions: 10
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 300
   template:
     metadata:
       labels:
         app: test-scale
     spec:
+      restartPolicy: Never
       containers:
-      - name: app
+      - name: stress
         image: polinux/stress
         command: ["stress"]
-        args: ["--cpu", "1", "--vm", "1", "--vm-bytes", "50M", "--timeout", "3600s"]
+        args: ["--cpu", "1", "--vm", "1", "--vm-bytes", "50M", "--timeout", "120s"]
         resources:
           requests:
             cpu: 200m
@@ -27,32 +28,22 @@ spec:
             memory: 256Mi
 ---
 apiVersion: v1
-kind: Service
+kind: ConfigMap
 metadata:
-  name: test-scale
+  name: test-scale-info
   namespace: default
-spec:
-  selector:
-    app: test-scale
-  ports:
-  - port: 80
----
-apiVersion: keda.sh/v1alpha1
-kind: ScaledObject
-metadata:
-  name: test-scale
-  namespace: default
-spec:
-  scaleTargetRef:
-    name: test-scale
-  minReplicaCount: 1
-  maxReplicaCount: 30
-  triggers:
-  - type: cpu
-    metricType: Utilization
-    metadata:
-      value: "50"
-  - type: memory
-    metricType: Utilization
-    metadata:
-      value: "60"
+data:
+  README.md: |
+    # Scale Test
+    
+    This Job creates 10 pods with CPU/memory load for 2 minutes.
+    
+    Timeline:
+    1. Job starts → 10 pods created
+    2. Pods pending → Karpenter provisions Spot nodes
+    3. Pods run for 2 minutes with high CPU
+    4. Job completes → Pods terminate
+    5. After 5 minutes → Job auto-deleted (ttlSecondsAfterFinished)
+    6. Karpenter consolidates → Removes unused nodes
+    
+    Watch: ./test-scale.sh
