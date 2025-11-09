@@ -7,6 +7,12 @@ resource "aws_vpc" "vpc_lrn" {
   tags = {
     Name = "${var.cluster_name}-vpc_lrn"
   }
+  
+  lifecycle {
+    # Prevent VPC deletion until all EKS resources are cleaned up
+    # EKS creates security groups that must be deleted first
+    prevent_destroy = false
+  }
 }
 
 # VPC Flow Logs for network monitoring and security analysis

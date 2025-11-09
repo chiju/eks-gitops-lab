@@ -32,3 +32,8 @@ output "grafana_cloudwatch_role_arn" {
   description = "IAM role ARN for Grafana CloudWatch access"
   value       = aws_iam_role.grafana_cloudwatch_role.arn
 }
+
+output "cleanup_complete" {
+  description = "Ensures EKS resources are cleaned up before VPC deletion"
+  value       = time_sleep.wait_for_eks_cleanup.id
+}

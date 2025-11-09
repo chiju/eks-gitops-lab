@@ -35,6 +35,20 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_eks_policy
   role       = aws_iam_role.iam_role_eks_lrn.name
 }
 
+# Wait for EKS-managed security groups to be deleted before VPC can be destroyed
+resource "time_sleep" "wait_for_eks_cleanup" {
+  depends_on = [
+    aws_eks_cluster.eks_cluster_lrn,
+    aws_eks_node_group.system_nodes,
+    aws_eks_addon.vpc_cni,
+    aws_eks_addon.coredns,
+    aws_eks_addon.kube_proxy,
+    aws_eks_addon.metrics_server
+  ]
+
+  destroy_duration = "60s"
+}
+
 # EKS Cluster
 resource "aws_eks_cluster" "eks_cluster_lrn" {
   name = var.cluster_name
