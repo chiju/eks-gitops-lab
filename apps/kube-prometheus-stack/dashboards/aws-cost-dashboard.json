@@ -1,131 +1,62 @@
 {
   "id": null,
   "title": "AWS EKS Cost Monitoring",
-  "tags": ["aws", "eks", "cost"],
+  "tags": ["aws", "eks", "cost", "cloudwatch"],
   "timezone": "browser",
   "schemaVersion": 30,
   "version": 1,
-  "refresh": "5m",
+  "refresh": "1m",
   "time": {
-    "from": "now-6h",
+    "from": "now-3h",
     "to": "now"
   },
   "panels": [
     {
       "id": 1,
-      "title": "EKS Cluster Status",
+      "title": "EKS Control Plane Cost",
       "type": "stat",
-      "targets": [],
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "short"
+          "unit": "currencyUSD"
         }
       },
       "options": {
-        "textMode": "name",
+        "textMode": "value_and_name",
         "colorMode": "background"
       },
-      "pluginVersion": "8.0.0",
-      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
-      "transformations": [
+      "targets": [
         {
-          "id": "add-field-from-calculation",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "reducer": "lastNotNull"
-            },
-            "replaceFields": false,
-            "alias": "EKS Cluster: eks-lab-argocd"
-          }
+          "datasource": "CloudWatch",
+          "namespace": "AWS/Usage",
+          "metricName": "ResourceCount",
+          "dimensions": {
+            "Type": "Resource",
+            "Resource": "EKS-Cluster",
+            "Service": "EKS",
+            "Class": "None"
+          },
+          "statistic": "Sum",
+          "period": "3600",
+          "region": "eu-central-1",
+          "expression": "$m1 * 0.10"
         }
       ]
     },
     {
       "id": 2,
-      "title": "Current Hourly Cost",
-      "type": "stat",
-      "targets": [],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 0.20},
-              {"color": "red", "value": 0.50}
-            ]
-          },
-          "unit": "currencyUSD"
-        }
-      },
-      "options": {
-        "textMode": "value",
-        "colorMode": "background"
-      },
-      "pluginVersion": "8.0.0",
-      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
-      "transformations": [
-        {
-          "id": "add-field-from-calculation",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "reducer": "lastNotNull"
-            },
-            "replaceFields": false,
-            "alias": "$0.18/hour"
-          }
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "title": "Estimated Monthly Cost",
-      "type": "stat",
-      "targets": [],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "steps": [
-              {"color": "green", "value": 0},
-              {"color": "yellow", "value": 100},
-              {"color": "red", "value": 200}
-            ]
-          },
-          "unit": "currencyUSD"
-        }
-      },
-      "options": {
-        "textMode": "value",
-        "colorMode": "background"
-      },
-      "pluginVersion": "8.0.0",
-      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
-      "transformations": [
-        {
-          "id": "add-field-from-calculation",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "reducer": "lastNotNull"
-            },
-            "replaceFields": false,
-            "alias": "$129.48/month"
-          }
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "title": "EKS Node CPU Utilization",
+      "title": "EC2 Node 1 CPU Usage",
       "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "percent",
+          "max": 100,
+          "min": 0
+        }
+      },
       "targets": [
         {
           "datasource": "CloudWatch",
@@ -137,7 +68,23 @@
           "statistic": "Average",
           "period": "300",
           "region": "eu-central-1"
-        },
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "EC2 Node 2 CPU Usage", 
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "percent",
+          "max": 100,
+          "min": 0
+        }
+      },
+      "targets": [
         {
           "datasource": "CloudWatch",
           "namespace": "AWS/EC2",
@@ -149,21 +96,19 @@
           "period": "300",
           "region": "eu-central-1"
         }
-      ],
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Network In (Both Nodes)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "percent",
-          "max": 100,
-          "min": 0
+          "unit": "bytes"
         }
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6}
-    },
-    {
-      "id": 5,
-      "title": "EKS Node Network Traffic",
-      "type": "timeseries",
       "targets": [
         {
           "datasource": "CloudWatch",
@@ -178,6 +123,31 @@
         },
         {
           "datasource": "CloudWatch",
+          "namespace": "AWS/EC2", 
+          "metricName": "NetworkIn",
+          "dimensions": {
+            "InstanceId": "i-08e49a452bc303e44"
+          },
+          "statistic": "Sum",
+          "period": "300",
+          "region": "eu-central-1"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Network Out (Both Nodes)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "bytes"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "CloudWatch",
           "namespace": "AWS/EC2",
           "metricName": "NetworkOut",
           "dimensions": {
@@ -186,49 +156,64 @@
           "statistic": "Sum",
           "period": "300",
           "region": "eu-central-1"
+        },
+        {
+          "datasource": "CloudWatch",
+          "namespace": "AWS/EC2",
+          "metricName": "NetworkOut", 
+          "dimensions": {
+            "InstanceId": "i-08e49a452bc303e44"
+          },
+          "statistic": "Sum",
+          "period": "300",
+          "region": "eu-central-1"
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "unit": "bytes"
-        }
-      },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6}
+      ]
     },
     {
       "id": 6,
-      "title": "Cost Breakdown",
-      "type": "piechart",
-      "targets": [],
+      "title": "EBS Volume Read IOPS",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "palette-classic"},
-          "unit": "currencyUSD"
+          "unit": "iops"
         }
       },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"],
-          "fields": ""
-        },
-        "pieType": "pie"
-      },
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14},
-      "transformations": [
+      "targets": [
         {
-          "id": "add-field-from-calculation",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": {
-              "reducer": "lastNotNull"
-            },
-            "replaceFields": false,
-            "alias": "EKS Control Plane: $72.00, Worker Nodes: $59.90, EBS Storage: $3.20"
-          }
+          "datasource": "CloudWatch",
+          "namespace": "AWS/EBS",
+          "metricName": "VolumeReadOps",
+          "dimensions": {
+            "VolumeId": "vol-0ddf34bbcfa3efa74"
+          },
+          "statistic": "Sum",
+          "period": "300",
+          "region": "eu-central-1"
+        },
+        {
+          "datasource": "CloudWatch",
+          "namespace": "AWS/EBS",
+          "metricName": "VolumeReadOps",
+          "dimensions": {
+            "VolumeId": "vol-029d1e8d7ccdee3ce"
+          },
+          "statistic": "Sum", 
+          "period": "300",
+          "region": "eu-central-1"
         }
       ]
+    },
+    {
+      "id": 7,
+      "title": "Cost Summary",
+      "type": "text",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "options": {
+        "content": "## Current AWS Costs\n\n**EKS Control Plane:** $0.10/hour = $72/month\n\n**2x t3.medium nodes:** $0.0832/hour = $59.90/month\n\n**EBS Storage (40GB GP3):** $3.20/month\n\n**Data Transfer:** ~$10-20/month\n\n---\n\n**Total Estimated:** $145-165/month\n\n**Current Hourly:** ~$0.18/hour\n\n**Running Since:** 08:28 UTC today"
+      }
     }
   ]
 }
