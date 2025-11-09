@@ -6,6 +6,11 @@ kube-prometheus-stack:
         requests:
           cpu: 200m
           memory: 512Mi
+      # Allow Prometheus to discover ServiceMonitors in all namespaces
+      serviceMonitorNamespaceSelector: {}
+      serviceMonitorSelector:
+        matchLabels:
+          release: monitoring
   grafana:
     enabled: true
     adminPassword: admin
