@@ -1,301 +1,312 @@
 # EKS Lab with ArgoCD - Production-Ready Setup
 
-Complete EKS cluster setup with GitOps (ArgoCD), monitoring (Prometheus/Grafana), logging (Loki), and cost optimization following AWS best practices.
+Complete production-ready EKS cluster with GitOps (ArgoCD), autoscaling (KEDA + Karpenter), monitoring (Prometheus/Grafana), logging (Loki), and best practices for workload isolation.
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         AWS Cloud                               │
-│                                                                 │
-│  ┌───────────────────────────────────────────────────────────┐ │
-│  │                    VPC (10.0.0.0/16)                      │ │
-│  │                                                           │ │
-│  │  ┌──────────────────┐      ┌──────────────────┐         │ │
-│  │  │  Public Subnet   │      │  Public Subnet   │         │ │
-│  │  │  10.0.1.0/24     │      │  10.0.2.0/24     │         │ │
-│  │  │  (AZ-1)          │      │  (AZ-2)          │         │ │
-│  │  │  - NAT Gateway   │      │                  │         │ │
-│  │  │  - Internet GW   │      │                  │         │ │
-│  │  └──────────────────┘      └──────────────────┘         │ │
-│  │           │                         │                    │ │
-│  │  ┌──────────────────┐      ┌──────────────────┐         │ │
-│  │  │ Private Subnet   │      │ Private Subnet   │         │ │
-│  │  │ 10.0.37.0/24     │      │ 10.0.60.0/24     │         │ │
-│  │  │ (AZ-1)           │      │ (AZ-2)           │         │ │
-│  │  │                  │      │                  │         │ │
-│  │  │ ┌──────────────┐ │      │ ┌──────────────┐ │         │ │
-│  │  │ │ EKS Nodes    │ │      │ │ EKS Nodes    │ │         │ │
-│  │  │ │ t3.medium    │ │      │ │ t3.medium    │ │         │ │
-│  │  │ └──────────────┘ │      │ └──────────────┘ │         │ │
-│  │  └──────────────────┘      └──────────────────┘         │ │
-│  └───────────────────────────────────────────────────────────┘ │
-│                                                                 │
-│  ┌───────────────────────────────────────────────────────────┐ │
-│  │                    EKS Control Plane                      │ │
-│  │                    (AWS Managed)                          │ │
-│  └───────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              EKS Cluster                                │
+│                                                                         │
+│  ┌────────────────────────────┐    ┌────────────────────────────────┐ │
+│  │   System Nodes             │    │   Karpenter Nodes              │ │
+│  │   (t3.medium, On-Demand)   │    │   (Spot, Auto-scaled)          │ │
+│  │                            │    │                                │ │
+│  │  Label: system=true        │    │  Label: karpenter.sh/capacity  │ │
+│  │  Taint: CriticalAddonsOnly │    │  No Taint                      │ │
+│  │                            │    │                                │ │
+│  │  ✅ ArgoCD                 │    │  ✅ Application Pods           │ │
+│  │  ✅ Prometheus/Grafana     │    │  ✅ KEDA scaled workloads      │ │
+│  │  ✅ Alertmanager           │    │  ✅ User workloads             │ │
+│  │  ❌ App Pods (blocked)     │    │  ❌ ArgoCD (blocked)           │ │
+│  └────────────────────────────┘    └────────────────────────────────┘ │
+│                                                                         │
+│  Autoscaling Flow:                                                     │
+│  High CPU → KEDA scales pods → Pods pending → Karpenter adds nodes    │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 📦 Components
 
 ### Infrastructure (Terraform)
 - **VPC**: Custom VPC with public/private subnets across 2 AZs
-- **EKS Cluster**: Kubernetes 1.34 with managed node groups
-- **Add-ons**: 
-  - Metrics Server (for HPA and `kubectl top`)
-  - CoreDNS, VPC-CNI, kube-proxy
-- **IAM**: IRSA for Grafana CloudWatch access
+- **EKS Cluster**: Kubernetes 1.34
+- **System Nodes**: 2x t3.medium On-Demand (tainted for control plane only)
+- **Karpenter**: Node autoscaling with Spot instances (70% cost savings)
+- **Add-ons**: Metrics Server, CoreDNS, VPC-CNI, kube-proxy
+- **IAM**: IRSA for Grafana CloudWatch, Karpenter roles
 
 ### Applications (ArgoCD)
-- **ArgoCD**: GitOps continuous delivery
+- **ArgoCD**: GitOps continuous delivery (30s sync, on system nodes)
+- **KEDA**: Pod autoscaling (1-20 replicas, CPU/Memory triggers)
 - **Prometheus + Grafana**: Metrics and dashboards
 - **Loki + Promtail**: Log aggregation
-- **NGINX**: Sample application
-
-### Monitoring Stack
-- **Prometheus**: Metrics collection (industry standard)
-- **Grafana**: Visualization with custom dashboards
 - **Alertmanager**: Alert routing
-- **Node Exporter**: Node-level metrics
 
-### Logging Stack
-- **Loki**: Log aggregation (Prometheus for logs)
-- **Promtail**: Log shipper (DaemonSet)
+### Key Features
+- ✅ **Workload Isolation**: Taints + tolerations prevent app pods on system nodes
+- ✅ **Cost Optimization**: Karpenter Spot instances, no CloudWatch Observability ($50-200/month saved)
+- ✅ **Auto-scaling**: KEDA scales pods, Karpenter scales nodes
+- ✅ **GitOps**: All apps managed via ArgoCD
+- ✅ **Production-Ready**: Industry standard patterns
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+```bash
+# Required
 - AWS CLI configured with profile `oth_infra`
 - Terraform >= 1.0
 - kubectl
 - Git
+```
 
 ### 1. Deploy Infrastructure
-
 ```bash
 cd terraform
 terraform init
-terraform plan
 terraform apply
 ```
 
-**Resources created:**
-- VPC with 2 public + 2 private subnets
-- NAT Gateway, Internet Gateway
-- EKS cluster with 2 t3.medium nodes
-- IAM roles and policies
-- Security groups
-
 ### 2. Configure kubectl
-
 ```bash
 aws eks update-kubeconfig --region eu-central-1 --name eks-lab-argocd --profile oth_infra
 ```
 
-### 3. Verify Cluster
-
+### 3. Verify Setup
 ```bash
-kubectl get nodes
-kubectl get pods -A
+# Check nodes (2 system + Karpenter nodes)
+kubectl get nodes -o custom-columns=NAME:.metadata.name,SYSTEM:.metadata.labels.node-role\\.kubernetes\\.io/system,TAINT:.spec.taints[0].key
+
+# Check ArgoCD (should be on system nodes)
+kubectl get pods -n argocd -o wide
+
+# Check apps
+kubectl get application -n argocd
 ```
 
 ### 4. Access ArgoCD
-
 ```bash
-# Get admin password
+# Get password
 kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
 
 # Port forward
 kubectl port-forward -n argocd svc/argocd-server 8080:443
 
-# Open browser
-open https://localhost:8080
-# Username: admin
+# Open https://localhost:8080 (admin / <password>)
 ```
 
 ### 5. Access Grafana
-
 ```bash
-# Get admin password
+# Get password
 kubectl get secret -n monitoring monitoring-grafana -o jsonpath='{.data.admin-password}' | base64 -d
 
 # Port forward
 kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 
-# Open browser
-open http://localhost:3000
-# Username: admin
+# Open http://localhost:3000 (admin / <password>)
 ```
 
-## 📁 Project Structure
+## 🎯 Autoscaling (KEDA + Karpenter)
 
+### How It Works
 ```
-eks-lab-argocd/
-├── terraform/                      # Infrastructure as Code
-│   ├── main.tf                     # Root module
-│   ├── modules/
-│   │   ├── vpc/                    # VPC module
-│   │   ├── eks/                    # EKS cluster module
-│   │   └── argocd/                 # ArgoCD bootstrap module
-│   └── terraform.tfvars            # Variables
-│
-├── apps/                           # Helm charts for applications
-│   ├── kube-prometheus-stack/      # Monitoring stack
-│   │   ├── Chart.yaml
-│   │   ├── values.yaml
-│   │   ├── dashboards/             # Grafana dashboards (JSON)
-│   │   │   ├── eks-prometheus-dashboard.json
-│   │   │   └── aws-cost-dashboard.json
-│   │   └── templates/
-│   │       ├── _helpers.tpl        # Helm helpers
-│   │       └── configmaps/
-│   │           └── dashboards.yaml # Dashboard ConfigMaps
-│   ├── loki/                       # Log aggregation
-│   ├── promtail/                   # Log shipper
-│   └── nginx/                      # Sample app
-│
-├── argocd-apps/                    # ArgoCD Application manifests
-│   ├── monitoring.yaml
-│   ├── loki.yaml
-│   ├── promtail.yaml
-│   └── nginx.yaml
-│
-├── cost-monitor.py                 # Cost monitoring script
-├── cost-optimizer.py               # Cost optimization script
-└── README.md                       # This file
+1. KEDA monitors CPU/Memory
+2. CPU > 50% → KEDA scales pods (1 → 20)
+3. Pods pending → Karpenter provisions Spot nodes
+4. Workload decreases → KEDA scales down pods
+5. Nodes underutilized → Karpenter consolidates (removes nodes)
 ```
 
-## 🎯 Key Features
+### KEDA Configuration
+```yaml
+minReplicaCount: 1
+maxReplicaCount: 20
+triggers:
+  - type: cpu
+    metadata:
+      value: "50"    # Scale at 50% CPU
+  - type: memory
+    metadata:
+      value: "50"    # Scale at 50% Memory
+```
 
-### GitOps with ArgoCD
-- **Declarative**: All apps defined in Git
-- **Automated sync**: Changes auto-deployed
-- **Self-healing**: Drift detection and correction
-- **Rollback**: Easy rollback to previous versions
+### Karpenter Configuration
+```yaml
+limits:
+  cpu: 10          # Max ~5 t3.small nodes
+  memory: 20Gi
+requirements:
+  - key: karpenter.sh/capacity-type
+    values: ["spot", "on-demand"]  # Prefer Spot (70% cheaper)
+consolidation:
+  enabled: true
+  after: 1m        # Remove empty nodes after 1 minute
+```
 
-### Monitoring (Industry Standard)
-- **Prometheus**: Metrics storage and querying
-- **Grafana**: 30+ pre-built dashboards
-- **Custom dashboards**: EKS cluster overview, AWS costs
-- **Metrics Server**: `kubectl top` support
+### Test Autoscaling
+```bash
+# Create test workload
+kubectl apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stress-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stress
+  template:
+    metadata:
+      labels:
+        app: stress
+    spec:
+      containers:
+      - name: stress
+        image: polinux/stress
+        args: ["--cpu", "1"]
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: stress-test
+spec:
+  scaleTargetRef:
+    name: stress-test
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  triggers:
+  - type: cpu
+    metadata:
+      value: "50"
+EOF
 
-### Cost Optimization
-- **No CloudWatch Observability**: Saves $50-200/month
-- **Prometheus instead**: Free, open-source
-- **CloudWatch only for**: Billing metrics (free)
-- **Cost monitoring scripts**: Track and optimize spend
+# Watch scaling
+watch kubectl get pods,nodes
+```
 
-### High Availability
-- **Multi-AZ**: Nodes across 2 availability zones
-- **Auto-scaling**: Node group can scale 1-3 nodes
-- **Health checks**: Liveness and readiness probes
-- **Self-healing**: Kubernetes restarts failed pods
+## 🔒 Best Practices - Workload Isolation
 
-## 📊 Dashboards
+### System Nodes (Control Plane)
+```yaml
+# Terraform configuration
+labels = {
+  "node-role.kubernetes.io/system" = "true"
+}
+taint {
+  key    = "CriticalAddonsOnly"
+  value  = "true"
+  effect = "NO_SCHEDULE"
+}
+```
 
-### EKS Cluster Overview (Prometheus)
-- Node CPU & Memory usage
-- Top 10 Pods by CPU & Memory
-- Total Nodes, Pods, Running/Failed Pods
-- Real-time metrics from Prometheus
+### ArgoCD (Runs on System Nodes)
+```yaml
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
+affinity:
+  nodeAffinity:
+    required:
+      - key: node-role.kubernetes.io/system
+        operator: Exists
+```
 
-### AWS Cost Dashboard
-- Estimated charges from CloudWatch
-- EC2 instance costs
-- Network traffic costs
-- Memory usage per instance
+### Result
+- **App pods**: Blocked by taint → Schedule on Karpenter nodes ✅
+- **ArgoCD**: Tolerate taint + require label → System nodes only ✅
+- **Karpenter scales down**: Only removes Spot nodes → ArgoCD unaffected ✅
 
-### Built-in Dashboards (30+)
-- Kubernetes resources
-- Node metrics
-- Persistent volumes
-- CoreDNS, etcd, API server
-- And more...
+### Why This Matters
+- Control plane components stay stable (no Spot interruptions)
+- App pods can't consume system node resources
+- Industry standard pattern (Netflix, Uber use similar approach)
+
+## 📊 Monitoring & Dashboards
+
+### Grafana Dashboards
+- **EKS Cluster Overview**: Node/Pod CPU/Memory, Top 10 pods
+- **AWS Cost Dashboard**: Estimated charges from CloudWatch
+- **30+ Built-in**: Kubernetes resources, CoreDNS, etcd, API server
+
+### Prometheus Metrics
+- Node metrics (CPU, memory, disk, network)
+- Pod metrics (resource usage, restarts)
+- Karpenter metrics (node provisioning, consolidation)
+- KEDA metrics (scaling events, triggers)
+
+### Loki Logs
+```bash
+# Query in Grafana
+{namespace="monitoring"}
+{app="argocd-server"} |= "error"
+```
+
+## 💰 Cost Optimization
+
+### Monthly Costs (~$180)
+| Resource | Cost |
+|----------|------|
+| EKS Control Plane | $73 |
+| System Nodes (2x t3.medium) | ~$60 |
+| Karpenter Spot Nodes | ~$10-30 (varies) |
+| NAT Gateway | ~$32 |
+| EBS Volumes | ~$10 |
+| **Total** | **~$180/month** |
+
+### Cost Savings
+- ✅ Removed CloudWatch Observability: **-$50-200/month**
+- ✅ Karpenter Spot instances: **-70% vs On-Demand**
+- ✅ Auto-consolidation: Removes unused nodes
+- ✅ Prometheus (free) instead of CloudWatch
 
 ## 🔧 Common Operations
 
-### Scale Node Group
-
+### Scale Manually
 ```bash
-# Via AWS CLI
+# Scale deployment
+kubectl scale deployment <name> --replicas=5
+
+# Scale node group (system nodes)
 aws eks update-nodegroup-config \
   --cluster-name eks-lab-argocd \
   --nodegroup-name eks-lab-argocd-system-nodes \
-  --scaling-config minSize=2,maxSize=4,desiredSize=3 \
-  --region eu-central-1 \
-  --profile oth_infra
+  --scaling-config desiredSize=3
 ```
 
-### Add New Dashboard
-
-1. Create JSON file:
+### Check Resource Usage
 ```bash
-apps/kube-prometheus-stack/dashboards/my-dashboard.json
+kubectl top nodes
+kubectl top pods -A
 ```
-
-2. Add to `templates/configmaps/dashboards.yaml`:
-```yaml
----
-{{- include "dashboard.configmap" (dict "name" "my-dashboard" "file" "dashboards/my-dashboard.json" "root" .) }}
-```
-
-3. Commit and push - ArgoCD deploys automatically!
 
 ### View Logs
-
 ```bash
 # Pod logs
 kubectl logs -n <namespace> <pod-name>
 
-# Logs via Loki (in Grafana)
-# Datasource: Loki
-# Query: {namespace="monitoring"}
+# Karpenter logs
+kubectl logs -n karpenter -l app.kubernetes.io/name=karpenter
+
+# KEDA logs
+kubectl logs -n keda -l app=keda-operator
 ```
 
-### Check Resource Usage
-
-```bash
-# Node resources
-kubectl top nodes
-
-# Pod resources
-kubectl top pods -A
-
-# Specific namespace
-kubectl top pods -n monitoring
-```
-
-### Sync ArgoCD Application
-
+### Sync ArgoCD App
 ```bash
 # Via CLI
-kubectl patch application monitoring -n argocd \
-  --type merge \
-  -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+kubectl patch application <app-name> -n argocd \
+  --type merge -p '{"operation":{"sync":{"revision":"HEAD"}}}'
 
-# Or via UI
-# Applications → monitoring → Sync
+# Or via UI: Applications → <app> → Sync
 ```
-
-## 💰 Cost Breakdown
-
-### Monthly Costs (Estimated)
-
-| Resource | Cost |
-|----------|------|
-| EKS Control Plane | $73 |
-| EC2 Instances (2x t3.medium) | ~$60 |
-| NAT Gateway | ~$32 |
-| EBS Volumes | ~$10 |
-| Data Transfer | ~$5 |
-| **Total** | **~$180/month** |
-
-### Cost Savings
-- ❌ Removed CloudWatch Observability: **-$50-200/month**
-- ✅ Using Prometheus instead: **Free**
-- ✅ CloudWatch billing metrics: **Free**
 
 ## 🛡️ Security Best Practices
 
@@ -303,11 +314,10 @@ kubectl patch application monitoring -n argocd \
 - ✅ Private subnets for worker nodes
 - ✅ IAM roles with least privilege (IRSA)
 - ✅ Security groups with minimal access
-- ✅ VPC Flow Logs enabled
-- ✅ EKS cluster endpoint private access
-- ✅ Secrets stored in Kubernetes Secrets
+- ✅ Workload isolation (taints + tolerations)
+- ✅ Secrets in Kubernetes Secrets
 
-### Recommended
+### Recommended for Production
 - [ ] Enable AWS GuardDuty
 - [ ] Set up AWS Config rules
 - [ ] Implement Pod Security Standards
@@ -316,21 +326,21 @@ kubectl patch application monitoring -n argocd \
 
 ## 🔍 Troubleshooting
 
-### Pods Pending (Too Many Pods)
+### Pods Pending
 ```bash
+# Check events
+kubectl describe pod <pod-name>
+
 # Check node capacity
 kubectl get nodes -o custom-columns=NAME:.metadata.name,PODS:.status.allocatable.pods
 
-# Scale node group
-aws eks update-nodegroup-config --cluster-name eks-lab-argocd \
-  --nodegroup-name eks-lab-argocd-system-nodes \
-  --scaling-config desiredSize=3 \
-  --region eu-central-1 --profile oth_infra
+# Check Karpenter logs
+kubectl logs -n karpenter -l app.kubernetes.io/name=karpenter --tail=50
 ```
 
 ### ArgoCD Out of Sync
 ```bash
-# Check application status
+# Check status
 kubectl get application -n argocd
 
 # Force sync
@@ -338,55 +348,69 @@ kubectl patch application <app-name> -n argocd \
   --type merge -p '{"operation":{"sync":{"revision":"HEAD"}}}'
 ```
 
-### Grafana Dashboard Not Showing
+### Karpenter Not Scaling
 ```bash
-# Check ConfigMap
-kubectl get configmap -n monitoring -l grafana_dashboard=1
+# Check NodePool
+kubectl get nodepool -o yaml
 
-# Check Grafana logs
-kubectl logs -n monitoring -l app.kubernetes.io/name=grafana
+# Check pending pods
+kubectl get pods -A | grep Pending
+
+# Check Karpenter events
+kubectl get events -n karpenter --sort-by='.lastTimestamp'
 ```
 
-### Prometheus Not Scraping
-```bash
-# Check ServiceMonitor
-kubectl get servicemonitor -A
+## 📁 Project Structure
 
-# Check Prometheus targets
-kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
-# Open http://localhost:9090/targets
+```
+eks-lab-argocd/
+├── terraform/                      # Infrastructure as Code
+│   ├── main.tf
+│   ├── modules/
+│   │   ├── vpc/                    # VPC module
+│   │   ├── eks/                    # EKS cluster + Karpenter
+│   │   └── argocd/                 # ArgoCD bootstrap
+│   └── terraform.tfvars
+│
+├── apps/                           # Helm charts
+│   ├── kube-prometheus-stack/      # Monitoring
+│   ├── loki/                       # Logging
+│   ├── promtail/                   # Log shipper
+│   └── keda/                       # Pod autoscaling
+│
+├── argocd-apps/                    # ArgoCD Applications
+│   ├── monitoring.yaml
+│   ├── keda.yaml
+│   ├── karpenter.yaml
+│   └── loki.yaml
+│
+└── README.md                       # This file
 ```
 
 ## 🚧 Roadmap
 
-- [ ] Add Horizontal Pod Autoscaler (HPA)
-- [ ] Set up Alertmanager notifications (Slack/Email)
+- [ ] Add HPA for other workloads
+- [ ] Configure Alertmanager notifications (Slack/Email)
 - [ ] Implement Network Policies
 - [ ] Add Velero for backups
-- [ ] Set up external-dns for DNS automation
-- [ ] Add cert-manager for TLS certificates
-- [ ] Implement Kyverno for policy enforcement
+- [ ] Set up external-dns
+- [ ] Add cert-manager for TLS
 
 ## 📚 References
 
 - [EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
+- [Karpenter Documentation](https://karpenter.sh/docs/)
+- [KEDA Documentation](https://keda.sh/docs/)
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-- [Prometheus Documentation](https://prometheus.io/docs/)
-- [Grafana Documentation](https://grafana.com/docs/)
-- [Loki Documentation](https://grafana.com/docs/loki/)
 
-## 🤝 Contributing
+## 🎓 Key Learnings
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📝 License
-
-MIT License - feel free to use this for learning and production!
+1. **Taints + Tolerations**: Industry standard for workload isolation
+2. **KEDA + Karpenter**: Perfect combo for cost-effective autoscaling
+3. **Prometheus > CloudWatch**: Free, open-source, industry standard
+4. **GitOps with ArgoCD**: Declarative, auditable, easy rollbacks
+5. **Spot Instances**: 70% savings with Karpenter handling interruptions
 
 ## 👤 Author
 
-Built with ❤️ for learning EKS, GitOps, and cloud-native best practices.
+Built with ❤️ for learning production-ready EKS, GitOps, and cloud-native best practices.
