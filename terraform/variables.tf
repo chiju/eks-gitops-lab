@@ -22,6 +22,12 @@ variable "region" {
   default     = "eu-central-1"
 }
 
+variable "allowed_account_id" {
+  description = "AWS Account ID that this Terraform is allowed to run against"
+  type        = string
+  default     = "432801802107"
+}
+
 variable "cidr" {
   description = "CIDR block for VPC"
   type        = string

@@ -19,6 +19,9 @@ terraform {
 provider "aws" {
   region  = var.region
   profile = "oth_infra"
+  
+  # Additional safety check - only allow specific account
+  allowed_account_ids = [var.allowed_account_id]
 }
 
 provider "kubernetes" {
