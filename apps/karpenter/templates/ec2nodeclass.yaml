@@ -12,6 +12,7 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
+  instanceProfile: eks-lab-argocd-node-group-role
   userData: |
     #!/bin/bash
     /etc/eks/bootstrap.sh eks-lab-argocd

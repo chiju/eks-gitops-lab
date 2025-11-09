@@ -341,6 +341,11 @@ resource "aws_ec2_tag" "cluster_sg_karpenter" {
   value       = var.cluster_name
 }
 
+# EC2 Spot service-linked role for Karpenter
+resource "aws_iam_service_linked_role" "spot" {
+  aws_service_name = "spot.amazonaws.com"
+}
+
 # Karpenter IAM Role
 resource "aws_iam_role" "karpenter_controller" {
   name = "KarpenterControllerRole-${var.cluster_name}"
@@ -404,6 +409,18 @@ resource "aws_iam_policy" "karpenter_controller" {
           "iam:PassRole"
         ]
         Resource = aws_iam_role.iam_role_node_group_lrn.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:CreateInstanceProfile",
+          "iam:DeleteInstanceProfile",
+          "iam:GetInstanceProfile",
+          "iam:TagInstanceProfile",
+          "iam:AddRoleToInstanceProfile",
+          "iam:RemoveRoleFromInstanceProfile"
+        ]
+        Resource = "*"
       },
       {
         Effect = "Allow"
