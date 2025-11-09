@@ -22,12 +22,6 @@ module "vpc" {
   availability_zones = var.availability_zones
   
   depends_on = [null_resource.account_validation]
-  
-  # Ensure VPC waits for EKS cleanup on destroy
-  # EKS creates security groups that must be deleted before VPC
-  lifecycle {
-    create_before_destroy = false
-  }
 }
 
 # EKS Module

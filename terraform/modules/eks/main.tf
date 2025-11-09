@@ -85,11 +85,6 @@ resource "aws_eks_cluster" "eks_cluster_lrn" {
   tags = {
     Name = var.cluster_name
   }
-  
-  # Ensure node groups are deleted before cluster
-  lifecycle {
-    create_before_destroy = false
-  }
 }
 
 # Access entry for your IAM user with built-in admin policy

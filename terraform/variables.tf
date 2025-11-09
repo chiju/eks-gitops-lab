@@ -22,6 +22,12 @@ variable "region" {
   default     = "eu-central-1"
 }
 
+variable "aws_profile" {
+  description = "AWS CLI profile to use"
+  type        = string
+  default     = "oth_infra"
+}
+
 variable "allowed_account_id" {
   description = "AWS Account ID that this Terraform is allowed to run against"
   type        = string
