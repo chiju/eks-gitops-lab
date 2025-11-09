@@ -184,6 +184,20 @@ resource "aws_iam_role_policy_attachment" "node_group_cloudwatch_insights" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+resource "aws_eks_addon" "metrics_server" {
+  cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
+  addon_name               = "metrics-server"
+  resolve_conflicts_on_create = "OVERWRITE"
+
+  depends_on = [
+    aws_eks_node_group.system_nodes
+  ]
+
+  tags = {
+    Name = "${var.cluster_name}-metrics-server-addon"
+  }
+}
+
 # Enable Container Insights via CloudWatch agent addon
 resource "aws_eks_addon" "cloudwatch_observability" {
   cluster_name             = aws_eks_cluster.eks_cluster_lrn.name
