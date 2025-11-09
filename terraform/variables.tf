@@ -23,9 +23,9 @@ variable "region" {
 }
 
 variable "aws_profile" {
-  description = "AWS CLI profile to use"
+  description = "AWS CLI profile to use (leave empty for GitHub Actions OIDC)"
   type        = string
-  default     = "oth_infra"
+  default     = ""
 }
 
 variable "allowed_account_id" {
@@ -76,3 +76,4 @@ variable "max_nodes" {
   default     = 3
 }
 
+# Test comment
