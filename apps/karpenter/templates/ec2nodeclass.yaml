@@ -5,7 +5,7 @@ metadata:
 spec:
   amiSelectorTerms:
     - alias: al2023@latest
-  role: eks-lab-argocd-node-group-role
+  instanceProfile: eks-lab-argocd-karpenter-node-profile
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
