@@ -49,7 +49,7 @@ module "argocd" {
   source = "./modules/argocd"
 
   namespace           = "argocd"
-  argocd_version      = "9.0.5"
+  argocd_version      = "9.1.0"
   git_repo_url        = "https://github.com/chiju/eks-lab-argocd.git"
   git_target_revision = "bootstrap"
   git_apps_path       = "argocd-apps"
