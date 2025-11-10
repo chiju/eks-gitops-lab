@@ -6,31 +6,9 @@ spec:
   amiSelectorTerms:
     - alias: al2023@latest
   role: eks-lab-argocd-node-group-role
-  metadataOptions:
-    httpEndpoint: enabled
-    httpProtocolIPv6: disabled
-    httpPutResponseHopLimit: 2
-    httpTokens: required
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
-  userData: |
-    MIME-Version: 1.0
-    Content-Type: multipart/mixed; boundary="BOUNDARY"
-
-    --BOUNDARY
-    Content-Type: application/node.eks.aws
-
-    ---
-    apiVersion: node.eks.aws/v1alpha1
-    kind: NodeConfig
-    spec:
-      cluster:
-        name: eks-lab-argocd
-        apiServerEndpoint: https://9A0133B6873DA6CB9469283436C60216.gr7.eu-central-1.eks.amazonaws.com
-        certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJU2xvVy9NTzdUUDR3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1UQXhNRFExTVRaYUZ3MHpOVEV4TURneE1EVXdNVFphTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUUM1WVdGQmpTbzhod2VwUWtRMXJUbi90eUFoWEVFYlpQVDcrYVVzMTNkS3JheWhTNTR4NEI5SlBUM2UKbUY4c3Vrd1NReDFjbTk1cnYvZG1YamVLU3QxeDFqNk1uQ3BOMW12ZTNiaFpKYU4xQktJSlVUWWFIc01UUjY3KwppbGQvQm14T0hTWWNzR1pJTnRkSGVsRkh5dGhlb3ZwUyt1OFJvdnZ3QmgwQlZ2d2JaTVNOWTBpWEhPd2xrSEhwCndxTDBiRkM5REExVTRMZ1U1L3R2Q29qb0NNQUdmM2IyamlVS2xZNmZLTUUwSjFyc2Vwb3NHN1VaeklrMzExL1UKY2UyRWNia2ErYVRQVEVYeWZSU0RMSldpTkhMVVpYYm9RZ3ZFL1dJekxWVE9iV3VCQVYwb0R4WHB5Q1FJWC9tZgplemFHc0VUVy9qS2UydUlOSDAzckdOM0NqQjlyQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJRUEpzRjNRMTROaGlOcW83QXp5a3o3Z2M5OUdUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ1JvWFZwNm5tVApyby8xeEZYRFkvampub2dMZExobksvUHhNN1U4b1E0bnNXcFB0QWdXUHFpSkJmTW01d29LRUlqNXNmMDJidytqCi9Td1QrZHdMR3pjUU84Y1N5c2h1Q0NVamZEcXhrdXg0a1NKK3JJbk1Zc1FZYkNFU1pITnBLSjhkejZSSVhhdnIKZXJtbGZEeUlnRW9BSng4dDZxT01HOXJsWFcyajBiREdLQU90b2dtVnc0c0hXdVZ5MlVLNTNQNHJNM3Y3eDBWTApRdmhnaEx3UmZINC9uMGtiRXJ2WEp0VFpTbVpybE93SjE2WVY2NzR6SDVBYkVhVWVxQUt2VEd4QVQ3UjlRSzZLCms5VDNBdmlQOE4zTHhjT0YybkdzYlhNYVBjYVlwRmtROVk1TXRUOVdtUENrTTZIanFZd2g2RlJIWlhzTGJmbjkKTWZhdWhhZ2lOem56Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-
-    --BOUNDARY--
