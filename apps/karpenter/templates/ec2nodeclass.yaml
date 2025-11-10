@@ -5,10 +5,12 @@ metadata:
 spec:
   amiSelectorTerms:
     - alias: al2023@latest
-  instanceProfile: eks-lab-argocd-karpenter-node-profile
+  role: eks-lab-argocd-karpenter-node-role
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
+  metadataOptions:
+    httpPutResponseHopLimit: 2
