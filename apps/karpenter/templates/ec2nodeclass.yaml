@@ -4,7 +4,7 @@ metadata:
   name: default
 spec:
   amiSelectorTerms:
-    - alias: al2023@latest
+    - alias: al2@latest
   role: eks-lab-argocd-node-group-role
   subnetSelectorTerms:
     - tags:
@@ -14,13 +14,3 @@ spec:
         karpenter.sh/discovery: eks-lab-argocd
   metadataOptions:
     httpPutResponseHopLimit: 2
-  userData: |
-    ---
-    apiVersion: node.eks.aws/v1alpha1
-    kind: NodeConfig
-    spec:
-      cluster:
-        name: eks-lab-argocd
-        apiServerEndpoint: {{ .ClusterEndpoint }}
-        certificateAuthority: {{ .ClusterCA }}
-        cidr: {{ .ClusterCIDR }}
