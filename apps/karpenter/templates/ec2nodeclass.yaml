@@ -6,6 +6,11 @@ spec:
   amiSelectorTerms:
     - alias: al2023@latest
   role: eks-lab-argocd-node-group-role
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2
+    httpTokens: required
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
