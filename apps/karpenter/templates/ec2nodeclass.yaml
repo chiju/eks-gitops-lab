@@ -4,7 +4,7 @@ metadata:
   name: default
 spec:
   amiSelectorTerms:
-    - alias: al2@latest
+    - alias: al2023@latest
   role: eks-lab-argocd-node-group-role
   subnetSelectorTerms:
     - tags:
@@ -14,3 +14,7 @@ spec:
         karpenter.sh/discovery: eks-lab-argocd
   metadataOptions:
     httpPutResponseHopLimit: 2
+  # KNOWN ISSUE: Karpenter 1.8.0 generates nodeadm userData with content-type
+  # "application/node.eks.aws" which cloud-init doesn't recognize on AL2023.
+  # This causes nodes to boot but never join the cluster.
+  # Tracked in: https://github.com/aws/karpenter-provider-aws/issues/XXXX
