@@ -16,15 +16,14 @@ terraform {
   }
 }
 
-# AWS Provider - uses OIDC for GitHub Actions
 provider "aws" {
-  region = var.region
+  region  = var.region
+  profile = var.aws_profile != "" ? var.aws_profile : null
 
   # Additional safety check - only allow specific account
   allowed_account_ids = [var.allowed_account_id]
 }
 
-# Kubernetes Provider - uses OIDC credentials
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
@@ -32,18 +31,20 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      module.eks.cluster_name,
-      "--region",
-      var.region
-    ]
+    args = concat(
+      [
+        "eks",
+        "get-token",
+        "--cluster-name",
+        module.eks.cluster_name,
+        "--region",
+        var.region
+      ],
+      var.aws_profile != "" ? ["--profile", var.aws_profile] : []
+    )
   }
 }
 
-# Helm Provider - uses OIDC credentials
 provider "helm" {
   kubernetes = {
     host                   = module.eks.cluster_endpoint
@@ -51,14 +52,17 @@ provider "helm" {
     exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args = [
-        "eks",
-        "get-token",
-        "--cluster-name",
-        module.eks.cluster_name,
-        "--region",
-        var.region
-      ]
+      args = concat(
+        [
+          "eks",
+          "get-token",
+          "--cluster-name",
+          module.eks.cluster_name,
+          "--region",
+          var.region
+        ],
+        var.aws_profile != "" ? ["--profile", var.aws_profile] : []
+      )
     }
   }
 }

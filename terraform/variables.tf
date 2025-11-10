@@ -2,6 +2,7 @@ variable "github_username" {
   description = "GitHub username"
   type        = string
   sensitive   = true
+  default     = "chiju"
 }
 
 variable "github_token" {

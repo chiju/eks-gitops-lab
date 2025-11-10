@@ -10,9 +10,9 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
   version    = var.argocd_version
-  
+
   timeout = 600
-  
+
   values = var.enable_ha ? [
     yamlencode({
       controller = {
@@ -25,7 +25,7 @@ resource "helm_release" "argocd" {
         replicas = 2
       }
     })
-  ] : [
+    ] : [
     yamlencode({
       configs = {
         cm = {
@@ -41,7 +41,7 @@ resource "helm_release" "argocd_apps" {
   repository = "oci://ghcr.io/argoproj/argo-helm"
   chart      = "argocd-apps"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
-  
+
   timeout = 600
 
   values = [
@@ -97,4 +97,3 @@ resource "kubernetes_secret" "argocd_repo" {
 
   depends_on = [helm_release.argocd]
 }
-
