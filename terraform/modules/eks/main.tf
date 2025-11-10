@@ -85,6 +85,13 @@ resource "aws_eks_access_entry" "admin_user" {
   type          = "STANDARD"
 }
 
+# Access entry for the role/user running Terraform (GitHub Actions or local)
+resource "aws_eks_access_entry" "terraform_executor" {
+  cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
+  principal_arn = data.aws_caller_identity.current.arn
+  type          = "STANDARD"
+}
+
 # Use AWS managed policy instead of custom ClusterRoleBinding
 resource "aws_eks_access_policy_association" "admin_policy" {
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
@@ -96,6 +103,19 @@ resource "aws_eks_access_policy_association" "admin_policy" {
   }
 
   depends_on = [aws_eks_access_entry.admin_user]
+}
+
+# Admin policy for Terraform executor
+resource "aws_eks_access_policy_association" "terraform_executor_policy" {
+  cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
+  principal_arn = data.aws_caller_identity.current.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.terraform_executor]
 }
 
 # EKS Addons - Best practice for managing core components
