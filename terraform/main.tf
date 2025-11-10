@@ -1,3 +1,6 @@
+# EKS Lab with ArgoCD - Main Configuration
+# Deployed via GitHub Actions with OIDC authentication
+
 # Account ID validation
 data "aws_caller_identity" "current" {}
 
