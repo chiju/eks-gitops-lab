@@ -11,6 +11,12 @@ variable "github_token" {
   sensitive   = true
 }
 
+variable "github_actions_role_arn" {
+  description = "ARN of the GitHub Actions role for EKS access"
+  type        = string
+  default     = "arn:aws:iam::432801802107:role/GitHubActionsRole"
+}
+
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
