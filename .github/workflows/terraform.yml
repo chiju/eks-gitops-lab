@@ -172,8 +172,16 @@ jobs:
     - name: Terraform Apply
       run: |
         # Retry up to 2 times with 30s delay (for EKS access policy propagation)
+        SUCCESS=false
         for i in 1 2; do
-          terraform apply -auto-approve -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" -var="github_username=chiju" && break
+          if terraform apply -auto-approve -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" -var="github_username=chiju"; then
+            SUCCESS=true
+            break
+          fi
           echo "Attempt $i failed. Waiting 30s for EKS access policy to propagate..."
           sleep 30
         done
+        if [ "$SUCCESS" = false ]; then
+          echo "All apply attempts failed"
+          exit 1
+        fi
