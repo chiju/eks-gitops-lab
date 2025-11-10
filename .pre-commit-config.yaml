@@ -8,6 +8,8 @@ repos:
         args:
           - --args=--soft-fail
       - id: terraform_tflint
+        args:
+          - --args=--minimum-failure-severity=error
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
