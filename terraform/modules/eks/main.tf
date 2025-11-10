@@ -88,9 +88,7 @@ locals {
     ":role/"
   )
   # Extract role ARN, handling both assumed-role and user ARNs
-  executor_role_arn = try(regex("^(arn:aws:iam::[0-9]+:role/[^/]+)", local.executor_arn)[0], null)
-  # Determine if executor is a role (for count)
-  is_role = length(regexall("^arn:aws:iam::[0-9]+:role/", local.executor_arn)) > 0 ? 1 : 0
+  executor_role_arn = try(regex("^(arn:aws:iam::[0-9]+:role/[^/]+)", local.executor_arn)[0], "")
 }
 
 # Access entry for your IAM user with built-in admin policy
@@ -102,7 +100,7 @@ resource "aws_eks_access_entry" "admin_user" {
 
 # Access entry for the role running Terraform (GitHub Actions)
 resource "aws_eks_access_entry" "terraform_executor" {
-  count         = local.is_role
+  count         = local.executor_role_arn != "" ? 1 : 0
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
   principal_arn = local.executor_role_arn
   type          = "STANDARD"
@@ -123,7 +121,7 @@ resource "aws_eks_access_policy_association" "admin_policy" {
 
 # Admin policy for Terraform executor
 resource "aws_eks_access_policy_association" "terraform_executor_policy" {
-  count         = local.is_role
+  count         = local.executor_role_arn != "" ? 1 : 0
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
   principal_arn = local.executor_role_arn
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
@@ -137,7 +135,7 @@ resource "aws_eks_access_policy_association" "terraform_executor_policy" {
 
 # Wait for access policy to propagate
 resource "time_sleep" "wait_for_access_policy" {
-  count           = local.is_role
+  count           = local.executor_role_arn != "" ? 1 : 0
   create_duration = "10s"
 
   depends_on = [aws_eks_access_policy_association.terraform_executor_policy]
