@@ -15,5 +15,12 @@ spec:
   metadataOptions:
     httpPutResponseHopLimit: 2
   userData: |
-    #!/bin/bash
-    /etc/eks/bootstrap.sh eks-lab-argocd
+    ---
+    apiVersion: node.eks.aws/v1alpha1
+    kind: NodeConfig
+    spec:
+      cluster:
+        name: eks-lab-argocd
+        apiServerEndpoint: {{ .ClusterEndpoint }}
+        certificateAuthority: {{ .ClusterCA }}
+        cidr: {{ .ClusterCIDR }}
