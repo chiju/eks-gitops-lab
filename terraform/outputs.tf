@@ -47,3 +47,8 @@ output "karpenter_sqs_queue_name" {
   description = "SQS queue name for Karpenter interruption handling"
   value       = module.eks.karpenter_sqs_queue_name
 }
+
+output "grafana_cloudwatch_role_arn" {
+  description = "IAM role ARN for Grafana CloudWatch access"
+  value       = module.eks.grafana_cloudwatch_role_arn
+}
