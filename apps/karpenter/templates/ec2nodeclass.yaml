@@ -5,10 +5,10 @@ metadata:
 spec:
   amiSelectorTerms:
     - alias: al2023@latest
-  role: {{ .Values.nodeGroupRoleName }}
+  role: eks-lab-argocd-node-group-role
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: {{ .Values.clusterName }}
+        karpenter.sh/discovery: eks-lab-argocd
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: {{ .Values.clusterName }}
+        karpenter.sh/discovery: eks-lab-argocd

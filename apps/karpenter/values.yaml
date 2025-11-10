@@ -16,7 +16,3 @@ karpenter:
       limits:
         cpu: 1000m
         memory: 1Gi
-
-# Values for EC2NodeClass template
-clusterName: eks-lab-argocd
-nodeGroupRoleName: eks-lab-argocd-node-group-role
