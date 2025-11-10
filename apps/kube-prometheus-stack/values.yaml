@@ -16,7 +16,7 @@ kube-prometheus-stack:
     adminPassword: admin
     serviceAccount:
       annotations:
-        eks.amazonaws.com/role-arn: "GRAFANA_ROLE_ARN_PLACEHOLDER"
+        eks.amazonaws.com/role-arn: ""
     sidecar:
       dashboards:
         enabled: true
