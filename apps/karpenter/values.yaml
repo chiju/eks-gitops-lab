@@ -1,12 +1,12 @@
-# Values are injected by ArgoCD from Terraform outputs
-# See argocd-apps/karpenter.yaml for parameter definitions
+# Auto-generated from Terraform outputs by GitHub Actions
+# Do not edit manually - changes will be overwritten
 
 karpenter:
   settings:
-    clusterName: PLACEHOLDER
-    clusterEndpoint: PLACEHOLDER
-    interruptionQueue: PLACEHOLDER
+    clusterName: eks-lab-argocd
+    clusterEndpoint: https://BE0F3FEABAA778D3BC9205B78F24F8C7.gr7.eu-central-1.eks.amazonaws.com
+    interruptionQueue: eks-lab-argocd
   
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: PLACEHOLDER
+      eks.amazonaws.com/role-arn: arn:aws:iam::432801802107:role/KarpenterControllerRole-eks-lab-argocd
