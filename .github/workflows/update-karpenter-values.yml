@@ -2,9 +2,10 @@ name: Update Karpenter Values from Terraform
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'terraform/**'
+  workflow_run:
+    workflows: ["Terraform CI/CD"]
+    types:
+      - completed
     branches:
       - bootstrap
 
@@ -15,6 +16,7 @@ permissions:
 jobs:
   update-values:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     
     steps:
       - name: Checkout
