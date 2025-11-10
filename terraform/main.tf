@@ -44,7 +44,7 @@ module "eks" {
   depends_on = [module.vpc, null_resource.account_validation]
 }
 
-# ArgoCD module
+# ArgoCD module - with explicit access policy dependency
 module "argocd" {
   source = "./modules/argocd"
 
