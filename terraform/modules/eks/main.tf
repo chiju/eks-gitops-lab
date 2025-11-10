@@ -78,6 +78,18 @@ resource "aws_eks_cluster" "eks_cluster_lrn" {
   }
 }
 
+locals {
+  # Convert assumed-role ARN to role ARN
+  # From: arn:aws:sts::123:assumed-role/GitHubActionsRole/session
+  # To:   arn:aws:iam::123:role/GitHubActionsRole
+  executor_arn = replace(
+    replace(data.aws_caller_identity.current.arn, ":sts:", ":iam:"),
+    ":assumed-role/",
+    ":role/"
+  )
+  executor_role_arn = regex("^(arn:aws:iam::[0-9]+:role/[^/]+)", local.executor_arn)[0]
+}
+
 # Access entry for your IAM user with built-in admin policy
 resource "aws_eks_access_entry" "admin_user" {
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
@@ -85,10 +97,10 @@ resource "aws_eks_access_entry" "admin_user" {
   type          = "STANDARD"
 }
 
-# Access entry for the role/user running Terraform (GitHub Actions or local)
+# Access entry for the role running Terraform (GitHub Actions)
 resource "aws_eks_access_entry" "terraform_executor" {
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
-  principal_arn = data.aws_caller_identity.current.arn
+  principal_arn = local.executor_role_arn
   type          = "STANDARD"
 }
 
@@ -108,7 +120,7 @@ resource "aws_eks_access_policy_association" "admin_policy" {
 # Admin policy for Terraform executor
 resource "aws_eks_access_policy_association" "terraform_executor_policy" {
   cluster_name  = aws_eks_cluster.eks_cluster_lrn.name
-  principal_arn = data.aws_caller_identity.current.arn
+  principal_arn = local.executor_role_arn
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
