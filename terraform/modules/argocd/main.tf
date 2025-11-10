@@ -1,15 +1,10 @@
-resource "kubernetes_namespace" "argocd" {
-  metadata {
-    name = var.namespace
-  }
-}
-
 resource "helm_release" "argocd" {
-  name       = "argocd"
-  repository = "oci://ghcr.io/argoproj/argo-helm"
-  chart      = "argo-cd"
-  namespace  = kubernetes_namespace.argocd.metadata[0].name
-  version    = var.argocd_version
+  name             = "argocd"
+  repository       = "oci://ghcr.io/argoproj/argo-helm"
+  chart            = "argo-cd"
+  namespace        = var.namespace
+  create_namespace = true
+  version          = var.argocd_version
 
   timeout = 600
 
