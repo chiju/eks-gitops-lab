@@ -133,6 +133,14 @@ resource "aws_eks_access_policy_association" "terraform_executor_policy" {
   depends_on = [aws_eks_access_entry.terraform_executor]
 }
 
+# Wait for access policy to propagate
+resource "time_sleep" "wait_for_access_policy" {
+  count           = local.executor_role_arn != null ? 1 : 0
+  create_duration = "10s"
+
+  depends_on = [aws_eks_access_policy_association.terraform_executor_policy]
+}
+
 # EKS Addons - Best practice for managing core components
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name                = aws_eks_cluster.eks_cluster_lrn.name

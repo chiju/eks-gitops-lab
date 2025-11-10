@@ -61,5 +61,5 @@ output "karpenter_sqs_queue_name" {
 
 output "cluster_access_ready" {
   description = "Signals that cluster access is configured and ready"
-  value       = try(aws_eks_access_policy_association.terraform_executor_policy[0].id, "no-access-policy")
+  value       = try(time_sleep.wait_for_access_policy[0].id, "no-access-policy")
 }
