@@ -56,9 +56,12 @@ module "argocd" {
   github_username     = var.github_username
   github_token        = var.github_token
 
-  depends_on = [
-    module.eks,
-    module.eks.aws_eks_access_policy_association.terraform_executor_policy,
-    null_resource.account_validation
-  ]
+  depends_on = [module.eks, null_resource.account_validation]
+}
+
+# Ensure ArgoCD waits for EKS access policy
+resource "null_resource" "argocd_depends_on_access" {
+  triggers = {
+    access_policy = module.eks.access_policy_ready
+  }
 }

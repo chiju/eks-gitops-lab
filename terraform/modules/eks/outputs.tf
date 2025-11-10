@@ -32,3 +32,8 @@ output "grafana_cloudwatch_role_arn" {
   description = "IAM role ARN for Grafana CloudWatch access"
   value       = aws_iam_role.grafana_cloudwatch_role.arn
 }
+
+output "access_policy_ready" {
+  description = "Dummy output to signal access policy is ready"
+  value       = aws_eks_access_policy_association.terraform_executor_policy.id
+}
