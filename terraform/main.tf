@@ -58,10 +58,3 @@ module "argocd" {
 
   depends_on = [module.eks, null_resource.account_validation]
 }
-
-# Ensure ArgoCD waits for EKS access policy
-resource "null_resource" "argocd_depends_on_access" {
-  triggers = {
-    access_policy = module.eks.access_policy_ready
-  }
-}

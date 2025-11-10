@@ -151,4 +151,10 @@ jobs:
       run: terraform init
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" -var="github_username=chiju"
+      run: |
+        # Retry up to 2 times with 30s delay (for EKS access policy propagation)
+        for i in 1 2; do
+          terraform apply -auto-approve -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" -var="github_username=chiju" && break
+          echo "Attempt $i failed. Waiting 30s for EKS access policy to propagate..."
+          sleep 30
+        done
