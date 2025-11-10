@@ -7,6 +7,10 @@ on:
         description: 'Type "destroy" to confirm'
         required: true
         type: string
+  push:
+    branches: [bootstrap]
+    paths:
+      - '.github/workflows/terraform-destroy.yml'
 
 permissions:
   id-token: write
