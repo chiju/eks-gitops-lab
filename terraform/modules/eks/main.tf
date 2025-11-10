@@ -258,6 +258,16 @@ resource "aws_iam_role" "iam_role_node_group_lrn" {
   }
 }
 
+# Instance profile for Karpenter nodes
+resource "aws_iam_instance_profile" "karpenter_node_instance_profile" {
+  name = "${var.cluster_name}-karpenter-node-profile"
+  role = aws_iam_role.iam_role_node_group_lrn.name
+
+  tags = {
+    Name = "${var.cluster_name}-karpenter-node-profile"
+  }
+}
+
 # Attach required policies to node group role
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_node_group_lrn" {
   for_each = toset([

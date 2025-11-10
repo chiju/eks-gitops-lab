@@ -33,3 +33,13 @@ output "grafana_cloudwatch_role_arn" {
   value       = aws_iam_role.grafana_cloudwatch_role.arn
 }
 
+
+output "node_instance_profile_name" {
+  description = "Instance profile name for EKS nodes"
+  value       = aws_eks_node_group.system_nodes.resources[0].remote_access_security_group_id != "" ? split("/", aws_iam_role.iam_role_node_group_lrn.arn)[1] : aws_iam_role.iam_role_node_group_lrn.name
+}
+
+output "karpenter_instance_profile_name" {
+  description = "Instance profile name for Karpenter nodes"
+  value       = aws_iam_instance_profile.karpenter_node_instance_profile.name
+}

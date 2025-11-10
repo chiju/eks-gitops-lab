@@ -5,13 +5,13 @@ metadata:
 spec:
   amiSelectorTerms:
     - alias: al2023@latest
-  instanceProfile: eks-lab-argocd-node-group-role
+  instanceProfile: {{ .Values.instanceProfileName }}
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: eks-lab-argocd
+        karpenter.sh/discovery: {{ .Values.clusterName }}
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: eks-lab-argocd
+        karpenter.sh/discovery: {{ .Values.clusterName }}
   userData: |
     #!/bin/bash
-    /etc/eks/bootstrap.sh eks-lab-argocd
+    /etc/eks/bootstrap.sh {{ .Values.clusterName }}
