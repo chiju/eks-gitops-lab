@@ -40,6 +40,9 @@ jobs:
           terraform init
       
       - name: Terraform Destroy
+        env:
+          TF_VAR_github_token: "dummy-token-for-destroy"
+          TF_VAR_github_username: "dummy-user"
         run: |
           cd terraform
           terraform destroy -auto-approve
