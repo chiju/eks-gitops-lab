@@ -71,6 +71,7 @@ Complete EKS cluster setup with GitOps (ArgoCD), monitoring (Prometheus/Grafana)
 - Terraform >= 1.0
 - kubectl
 - Git
+- S3 bucket for state: `eks-lab-argocd-terraform-state` (with versioning enabled)
 
 ### 1. Deploy Infrastructure
 
