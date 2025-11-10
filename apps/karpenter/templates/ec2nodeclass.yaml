@@ -14,3 +14,6 @@ spec:
         karpenter.sh/discovery: eks-lab-argocd
   metadataOptions:
     httpPutResponseHopLimit: 2
+  userData: |
+    #!/bin/bash
+    /etc/eks/bootstrap.sh eks-lab-argocd
