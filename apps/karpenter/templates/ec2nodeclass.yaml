@@ -3,10 +3,9 @@ kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  amiFamily: AL2023
   amiSelectorTerms:
     - alias: al2023@latest
-  instanceProfile: {{ .Values.instanceProfileName }}
+  role: {{ .Values.nodeGroupRoleName }}
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: {{ .Values.clusterName }}

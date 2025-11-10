@@ -19,4 +19,4 @@ karpenter:
 
 # Values for EC2NodeClass template
 clusterName: eks-lab-argocd
-instanceProfileName: eks-lab-argocd-karpenter-node-profile
+nodeGroupRoleName: eks-lab-argocd-node-group-role
