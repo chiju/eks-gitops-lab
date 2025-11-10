@@ -403,7 +403,7 @@ resource "aws_iam_role" "karpenter_controller" {
       }
       Condition = {
         StringEquals = {
-          "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:sub" = "system:serviceaccount:karpenter:karpenter"
+          "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:karpenter"
           "${replace(aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.url, "https://", "")}:aud" = "sts.amazonaws.com"
         }
       }

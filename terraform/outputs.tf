@@ -32,3 +32,18 @@ output "configure_kubectl" {
   description = "Configure kubectl command"
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name} --profile oth_infra"
 }
+
+output "karpenter_controller_role_arn" {
+  description = "IAM role ARN for Karpenter controller"
+  value       = module.eks.karpenter_controller_role_arn
+}
+
+output "karpenter_node_role_name" {
+  description = "IAM role name for Karpenter nodes"
+  value       = module.eks.karpenter_node_role_name
+}
+
+output "karpenter_sqs_queue_name" {
+  description = "SQS queue name for Karpenter interruption handling"
+  value       = module.eks.karpenter_sqs_queue_name
+}
