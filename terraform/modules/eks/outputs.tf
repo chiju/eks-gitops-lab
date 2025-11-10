@@ -58,3 +58,8 @@ output "karpenter_sqs_queue_name" {
   description = "SQS queue name for Karpenter interruption handling"
   value       = aws_sqs_queue.karpenter.name
 }
+
+output "cluster_access_ready" {
+  description = "Signals that cluster access is configured and ready"
+  value       = try(aws_eks_access_policy_association.terraform_executor_policy[0].id, "no-access-policy")
+}

@@ -56,5 +56,9 @@ module "argocd" {
   github_username     = var.github_username
   github_token        = var.github_token
 
-  depends_on = [module.eks, null_resource.account_validation]
+  depends_on = [
+    module.eks,
+    module.eks.cluster_access_ready,
+    null_resource.account_validation
+  ]
 }
