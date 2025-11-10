@@ -44,7 +44,7 @@ module "eks" {
   depends_on = [module.vpc, null_resource.account_validation]
 }
 
-# ArgoCD module - with explicit access policy dependency
+# ArgoCD module - Helm creates namespace automatically
 module "argocd" {
   source = "./modules/argocd"
 
