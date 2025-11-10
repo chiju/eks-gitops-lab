@@ -1,6 +1,6 @@
 output "namespace" {
   description = "ArgoCD namespace"
-  value       = kubernetes_namespace.argocd.metadata[0].name
+  value       = var.namespace
 }
 
 output "argocd_version" {

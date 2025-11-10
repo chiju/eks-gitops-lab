@@ -35,7 +35,7 @@ resource "helm_release" "argocd_apps" {
   name       = "argocd-apps"
   repository = "oci://ghcr.io/argoproj/argo-helm"
   chart      = "argocd-apps"
-  namespace  = kubernetes_namespace.argocd.metadata[0].name
+  namespace  = var.namespace
 
   timeout = 600
 
@@ -43,7 +43,7 @@ resource "helm_release" "argocd_apps" {
     yamlencode({
       applications = {
         app-of-apps = {
-          namespace  = kubernetes_namespace.argocd.metadata[0].name
+          namespace  = var.namespace
           finalizers = ["resources-finalizer.argocd.argoproj.io"]
           project    = "default"
           source = {
@@ -53,7 +53,7 @@ resource "helm_release" "argocd_apps" {
           }
           destination = {
             server    = "https://kubernetes.default.svc"
-            namespace = kubernetes_namespace.argocd.metadata[0].name
+            namespace = var.namespace
           }
           syncPolicy = {
             automated = {
@@ -77,7 +77,7 @@ resource "kubernetes_secret" "argocd_repo" {
 
   metadata {
     name      = "${var.namespace}-repo"
-    namespace = kubernetes_namespace.argocd.metadata[0].name
+    namespace = var.namespace
     labels = {
       "argocd.argoproj.io/secret-type" = "repository"
     }
