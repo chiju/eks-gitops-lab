@@ -3,6 +3,8 @@ karpenter:
     clusterName: eks-lab-argocd
     clusterEndpoint: https://9A0133B6873DA6CB9469283436C60216.gr7.eu-central-1.eks.amazonaws.com
     interruptionQueue: eks-lab-argocd
+    featureGates:
+      staticCapacity: false
   
   serviceAccount:
     annotations:
