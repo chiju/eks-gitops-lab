@@ -1,6 +1,6 @@
 # EKS Lab with ArgoCD - Main Configuration
 # Deployed via GitHub Actions with OIDC authentication
-# Updated: 2025-11-10 - Karpenter 1.8.0 for K8s 1.34
+# Updated: 2025-11-11 - Testing workflow updates
 
 # Account ID validation
 data "aws_caller_identity" "current" {}
