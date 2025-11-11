@@ -32,15 +32,15 @@ module "vpc" {
 module "eks" {
   source = "./modules/eks"
 
-  cluster_name             = var.cluster_name
-  kubernetes_version       = var.kubernetes_version
-  github_actions_role_arn  = var.github_actions_role_arn
-  public_subnet_ids        = module.vpc.public_subnet_ids
-  private_subnet_ids       = module.vpc.private_subnet_ids
-  node_instance_type       = var.node_instance_type
-  desired_nodes            = var.desired_nodes
-  min_nodes                = var.min_nodes
-  max_nodes                = var.max_nodes
+  cluster_name            = var.cluster_name
+  kubernetes_version      = var.kubernetes_version
+  github_actions_role_arn = var.github_actions_role_arn
+  public_subnet_ids       = module.vpc.public_subnet_ids
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  node_instance_type      = var.node_instance_type
+  desired_nodes           = var.desired_nodes
+  min_nodes               = var.min_nodes
+  max_nodes               = var.max_nodes
 
   depends_on = [module.vpc, null_resource.account_validation]
 }
