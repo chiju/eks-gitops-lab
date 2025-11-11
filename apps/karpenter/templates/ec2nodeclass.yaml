@@ -12,3 +12,8 @@ spec:
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: eks-lab-argocd
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2
+    httpTokens: required
