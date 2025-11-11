@@ -1,0 +1,6 @@
+kubecost-reports-exporter:
+  kubecostURL: http://kubecost-cost-analyzer.kubecost.svc:9090
+  
+  serviceMonitor:
+    enabled: true
+    namespace: kubecost

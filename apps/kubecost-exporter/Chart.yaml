@@ -1,0 +1,9 @@
+apiVersion: v2
+name: kubecost-exporter
+description: Export Kubecost reports to Prometheus
+type: application
+version: 1.0.0
+dependencies:
+  - name: kubecost-reports-exporter
+    version: 2.0.5
+    repository: oci://ghcr.io/deliveryhero/helm-charts
