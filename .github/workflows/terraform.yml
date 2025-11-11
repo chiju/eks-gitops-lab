@@ -90,16 +90,6 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Create Access Entry (if needed)
-      run: |
-        terraform apply -auto-approve \
-          -target=module.eks.aws_eks_access_entry.terraform_executor \
-          -target=module.eks.aws_eks_access_policy_association.terraform_executor_policy \
-          -target=module.eks.time_sleep.wait_for_access_policy \
-          -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" \
-          -var="github_username=chiju" || true
-        sleep 10
-
     - name: Terraform Plan
       id: plan
       run: |
