@@ -3,10 +3,10 @@
 
 karpenter:
   settings:
-    clusterName: eks-lab-argocd
-    clusterEndpoint: https://13DE1C95A6A6F2024D643F734ECF160A.gr7.eu-central-1.eks.amazonaws.com
-    interruptionQueue: eks-lab-argocd
+    clusterName: eks-gitops-lab
+    clusterEndpoint: https://8433BE65408DF1C004861437946C27BB.gr7.eu-central-1.eks.amazonaws.com
+    interruptionQueue: eks-gitops-lab
   
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::432801802107:role/KarpenterControllerRole-eks-lab-argocd
+      eks.amazonaws.com/role-arn: arn:aws:iam::432801802107:role/KarpenterControllerRole-eks-gitops-lab
