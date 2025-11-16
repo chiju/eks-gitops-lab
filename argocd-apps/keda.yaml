@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/chiju/eks-gitops-lab.git
-    targetRevision: bootstrap
+    targetRevision: main
     path: apps/keda
   destination:
     server: https://kubernetes.default.svc

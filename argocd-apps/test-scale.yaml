@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/chiju/eks-gitops-lab.git
-    targetRevision: bootstrap
+    targetRevision: main
     path: apps/test-scale
   destination:
     server: https://kubernetes.default.svc
