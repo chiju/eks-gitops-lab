@@ -3,11 +3,11 @@ name: Update App Values from Terraform
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Terraform CI/CD"]
+    workflows: ["Terraform Infrastructure"]
     types:
       - completed
     branches:
-      - bootstrap
+      - main
 
 permissions:
   id-token: write
