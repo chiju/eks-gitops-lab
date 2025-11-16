@@ -35,7 +35,7 @@ spec:
   scaleTargetRef:
     name: test-scale
   minReplicaCount: 1
-  maxReplicaCount: 5
+  maxReplicaCount: 2
   triggers:
   - type: cpu
     metricType: Utilization
