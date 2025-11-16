@@ -1,8 +1,0 @@
-USER-SUPPLIED VALUES:
-serviceAccount:
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::432801802107:role/KarpenterControllerRole-eks-lab-argocd
-settings:
-  clusterEndpoint: https://BE0F3FEABAA778D3BC9205B78F24F8C7.gr7.eu-central-1.eks.amazonaws.com
-  clusterName: eks-lab-argocd
-  interruptionQueue: eks-lab-argocd
