@@ -7,10 +7,6 @@ on:
         description: 'Type "destroy" to confirm'
         required: true
         type: string
-  push:
-    branches: [bootstrap]
-    paths:
-      - '.github/workflows/terraform-destroy.yml'
 
 permissions:
   id-token: write
@@ -20,6 +16,7 @@ jobs:
   destroy:
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm == 'destroy'
+    environment: production
     
     steps:
       - name: Checkout
@@ -35,17 +32,18 @@ jobs:
         uses: hashicorp/setup-terraform@v3
       
       - name: Terraform Init
-        run: |
-          cd terraform
-          terraform init
+        working-directory: terraform
+        run: terraform init
       
       - name: Terraform Destroy
-        env:
-          TF_VAR_github_token: "dummy-token-for-destroy"
-          TF_VAR_github_username: "dummy-user"
+        working-directory: terraform
         run: |
-          cd terraform
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve \
+            -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" \
+            -var="git_username=${{ secrets.GIT_USERNAME }}" \
+            -var="git_repo_url=${{ secrets.GIT_REPO_URL }}" \
+            -var="allowed_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
+            -var="github_actions_role_arn=${{ secrets.AWS_ROLE_ARN }}"
       
       - name: Summary
         run: |
