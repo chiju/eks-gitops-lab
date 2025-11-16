@@ -1,8 +1,7 @@
-variable "github_username" {
+variable "git_username" {
   description = "GitHub username"
   type        = string
   sensitive   = true
-  default     = "chiju"
 }
 
 variable "github_token" {
@@ -11,16 +10,27 @@ variable "github_token" {
   sensitive   = true
 }
 
+variable "git_repo_url" {
+  description = "Git repository URL for ArgoCD"
+  type        = string
+  default     = "https://github.com/YOUR_USERNAME/eks-gitops-lab.git"
+}
+
+variable "git_target_revision" {
+  description = "Git branch/tag for ArgoCD to track"
+  type        = string
+  default     = "main"
+}
+
 variable "github_actions_role_arn" {
   description = "ARN of the GitHub Actions role for EKS access"
   type        = string
-  default     = "arn:aws:iam::432801802107:role/GitHubActionsRole"
 }
 
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default     = "eks-lab-argocd"
+  default     = "eks-gitops-lab"
 }
 
 variable "region" {
@@ -32,7 +42,6 @@ variable "region" {
 variable "allowed_account_id" {
   description = "AWS Account ID that this Terraform is allowed to run against"
   type        = string
-  default     = "432801802107"
 }
 
 variable "cidr" {

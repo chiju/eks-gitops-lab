@@ -27,7 +27,7 @@ variable "git_apps_path" {
   default     = "argocd-apps"
 }
 
-variable "github_username" {
+variable "git_username" {
   description = "GitHub username for private repos"
   type        = string
   default     = ""
