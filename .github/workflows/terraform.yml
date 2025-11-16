@@ -75,6 +75,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, security]
     
+    concurrency:
+      group: terraform-state-${{ github.repository }}
+      cancel-in-progress: false
+    
     outputs:
       tfplanExitCode: ${{ steps.plan.outputs.exitcode }}
     
@@ -179,6 +183,11 @@ jobs:
     needs: [plan]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.plan.outputs.tfplanExitCode == '2'
     environment: production
+    
+    concurrency:
+      group: terraform-state-${{ github.repository }}
+      cancel-in-progress: false
+    
     defaults:
       run:
         working-directory: terraform
