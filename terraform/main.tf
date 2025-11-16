@@ -54,7 +54,7 @@ module "argocd" {
   git_repo_url        = var.git_repo_url
   git_target_revision = var.git_target_revision
   git_apps_path       = "argocd-apps"
-  git_username     = var.git_username
+  git_username        = var.git_username
   github_token        = var.github_token
 
   depends_on = [module.eks, null_resource.account_validation]
