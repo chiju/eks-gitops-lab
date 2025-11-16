@@ -257,3 +257,10 @@ jobs:
         echo "🎉 Infrastructure deployed successfully!"
         CLUSTER_ENDPOINT=$(aws eks describe-cluster --name eks-gitops-lab --region ${{ env.AWS_REGION }} --query 'cluster.endpoint' --output text)
         echo "EKS Cluster Endpoint: $CLUSTER_ENDPOINT"
+
+  update-app-values:
+    name: Update App Values
+    needs: [apply]
+    if: success()
+    uses: ./.github/workflows/update-app-values.yml
+    secrets: inherit

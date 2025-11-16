@@ -1,13 +1,8 @@
 name: Update App Values from Terraform
 
 on:
+  workflow_call:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Terraform Infrastructure"]
-    types:
-      - completed
-    branches:
-      - main
 
 permissions:
   id-token: write
@@ -16,8 +11,6 @@ permissions:
 jobs:
   update-values:
     runs-on: ubuntu-latest
-    # Run if: manually triggered OR Terraform succeeded AND apply job ran (push/workflow_dispatch events)
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch')) }}
     
     steps:
       - name: Checkout
