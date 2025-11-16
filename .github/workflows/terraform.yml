@@ -262,5 +262,8 @@ jobs:
     name: Update App Values
     needs: [apply]
     if: needs.apply.result == 'success'
+    permissions:
+      id-token: write
+      contents: write
     uses: ./.github/workflows/update-app-values.yml
     secrets: inherit
