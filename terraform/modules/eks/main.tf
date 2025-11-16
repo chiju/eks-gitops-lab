@@ -145,7 +145,7 @@ resource "time_sleep" "wait_for_access_policy" {
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name                = aws_eks_cluster.eks_cluster_lrn.name
   addon_name                  = "vpc-cni"
-  addon_version               = "v1.20.4-eksbuild.2"
+  addon_version               = "v1.20.4-eksbuild.1"
   resolve_conflicts_on_create = "OVERWRITE"
 
   depends_on = [
