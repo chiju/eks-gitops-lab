@@ -10,6 +10,18 @@ variable "github_token" {
   sensitive   = true
 }
 
+variable "user_email_prefix" {
+  description = "Email prefix for IAM Identity Center users"
+  type        = string
+  default     = "user"
+}
+
+variable "user_email_domain" {
+  description = "Email domain for IAM Identity Center users"
+  type        = string
+  default     = "example.com"
+}
+
 variable "git_repo_url" {
   description = "Git repository URL for ArgoCD"
   type        = string
