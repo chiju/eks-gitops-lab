@@ -59,3 +59,12 @@ module "argocd" {
 
   depends_on = [module.eks, null_resource.account_validation]
 }
+
+# IAM Identity Center Integration
+module "iam_identity_center" {
+  source = "./modules/iam-identity-center"
+  
+  cluster_name = var.cluster_name
+  
+  depends_on = [module.eks]
+}
