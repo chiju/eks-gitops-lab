@@ -51,10 +51,20 @@ fi
 echo "Cleaning local Terraform files..."
 rm -rf terraform/.terraform terraform/.terraform.lock.hcl terraform/terraform.tfstate terraform/terraform.tfstate.backup
 
+echo ""
+echo "⚠️  IAM Identity Center cleanup (optional):"
+echo "If you want to remove Identity Center users and permission sets:"
+echo "1. Go to: https://console.aws.amazon.com/singlesignon"
+echo "2. Delete users manually"
+echo "3. Delete permission sets manually"
+echo "4. Or keep them for future use (no cost)"
+
+echo ""
 echo "✅ Cleanup complete!"
 echo ""
 echo "To start fresh, run:"
 echo "1. ./scripts/bootstrap-backend.sh"
 echo "2. ./scripts/setup-oidc-access.sh"
-echo "3. Add GIT_USERNAME and ARGOCD_GITHUB_TOKEN secrets"
-echo "4. git push origin main"
+echo "3. ./scripts/setup-identity-center.sh (if using Identity Center)"
+echo "4. Add GIT_USERNAME and ARGOCD_GITHUB_TOKEN secrets"
+echo "5. git push origin main"

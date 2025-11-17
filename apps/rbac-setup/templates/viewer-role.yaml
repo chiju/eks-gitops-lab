@@ -1,0 +1,31 @@
+---
+# Read-Only ClusterRole - For auditors/managers
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: viewer-role
+rules:
+# View all resources
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+
+# Explicitly deny secrets
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: []
+
+---
+# Bind viewers group to viewer role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: viewer-binding
+subjects:
+- kind: Group
+  name: viewers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: viewer-role
+  apiGroup: rbac.authorization.k8s.io
