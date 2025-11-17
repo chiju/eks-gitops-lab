@@ -24,6 +24,8 @@ if [ -n "$GITHUB_REPO" ]; then
   gh secret delete GIT_REPO_URL || true
   gh secret delete GIT_USERNAME || true
   gh secret delete ARGOCD_GITHUB_TOKEN || true
+  gh secret delete USER_EMAIL_PREFIX || true
+  gh secret delete USER_EMAIL_DOMAIN || true
 fi
 
 # Delete IAM role
@@ -52,12 +54,17 @@ echo "Cleaning local Terraform files..."
 rm -rf terraform/.terraform terraform/.terraform.lock.hcl terraform/terraform.tfstate terraform/terraform.tfstate.backup
 
 echo ""
-echo "⚠️  IAM Identity Center cleanup (optional):"
-echo "If you want to remove Identity Center users and permission sets:"
+echo "⚠️  IAM Identity Center cleanup:"
+echo "Terraform destroy will handle:"
+echo "  - EKS Access Entries"
+echo "  - Account assignments"
+echo "  - Permission sets"
+echo "  - Users"
+echo ""
+echo "If you want to manually clean Identity Center:"
 echo "1. Go to: https://console.aws.amazon.com/singlesignon"
-echo "2. Delete users manually"
-echo "3. Delete permission sets manually"
-echo "4. Or keep them for future use (no cost)"
+echo "2. Delete users, permission sets, and assignments"
+echo "3. Or keep them for future use (no cost)"
 
 echo ""
 echo "✅ Cleanup complete!"
@@ -65,6 +72,6 @@ echo ""
 echo "To start fresh, run:"
 echo "1. ./scripts/bootstrap-backend.sh"
 echo "2. ./scripts/setup-oidc-access.sh"
-echo "3. ./scripts/setup-identity-center.sh (if using Identity Center)"
-echo "4. Add GIT_USERNAME and ARGOCD_GITHUB_TOKEN secrets"
+echo "3. Add GIT_USERNAME and ARGOCD_GITHUB_TOKEN secrets"
+echo "4. Add USER_EMAIL_PREFIX and USER_EMAIL_DOMAIN secrets"
 echo "5. git push origin main"

@@ -1,8 +1,7 @@
-# Integration Steps - IAM Identity Center (Real SSO!)
+# Integration Steps - IAM Identity Center (Terraform Automated!)
 
 ## What Was Created
 
-✅ **Bootstrap Script**: `scripts/setup-identity-center.sh`  
 ✅ **Terraform Module**: `terraform/modules/iam-identity-center/`  
 ✅ **ArgoCD App**: `apps/rbac-setup/`  
 ✅ **ArgoCD Manifest**: `argocd-apps/rbac-setup.yaml`  
@@ -30,62 +29,42 @@ gh secret set ARGOCD_GITHUB_TOKEN -b "your-github-pat"
 3. Choose "Identity Center directory" as identity source
 ```
 
-### **Step 4: Run Identity Center Setup**
+### **Step 4: Add Email Secrets**
 ```bash
-./scripts/setup-identity-center.sh
-# Enter your email when prompted
-# Uses + trick: your-email+alice@gmail.com
+gh secret set USER_EMAIL_PREFIX -b "your-email-prefix"
+gh secret set USER_EMAIL_DOMAIN -b "gmail.com"
 ```
 
-**This creates:**
-- ✅ 4 users (alice, bob, charlie, diana)
-- ✅ 4 permission sets (PlatformAdmin, DevOpsEngineer, Developer, ReadOnly)
-- ✅ User assignments
+Example: For `chijuar@gmail.com`, use:
+- `USER_EMAIL_PREFIX`: `chijuar`
+- `USER_EMAIL_DOMAIN`: `gmail.com`
 
-### **Step 5: Verify Emails**
-Check your inbox for 4 verification emails and click the links.
+Users will be created as:
+- `chijuar+alice@gmail.com`
+- `chijuar+bob@gmail.com`
+- `chijuar+charlie@gmail.com`
+- `chijuar+diana@gmail.com`
 
-### **Step 6: Add Module to Terraform**
-
-Edit `terraform/main.tf`:
-```hcl
-# IAM Identity Center Integration
-module "iam_identity_center" {
-  source = "./modules/iam-identity-center"
-  
-  cluster_name = var.cluster_name
-  
-  depends_on = [module.eks]
-}
-```
-
-Edit `terraform/outputs.tf`:
-```hcl
-# IAM Identity Center
-output "identity_center_setup" {
-  value = module.iam_identity_center.setup_complete
-}
-```
-
-### **Step 7: Deploy**
+### **Step 5: Deploy**
 ```bash
-git add .
-git commit -m "feat: Add IAM Identity Center with RBAC"
-git push origin feature/iam-identity-center-simulation
+git push origin main
 ```
 
-**GitHub Actions will:**
-- ✅ Create EKS Access Entries for SSO roles
-- ✅ ArgoCD deploys RBAC automatically
+**Terraform will automatically:**
+- ✅ Create 4 users
+- ✅ Create 4 permission sets
+- ✅ Create account assignments (creates SSO roles)
+- ✅ Create EKS Access Entries
+- ✅ ArgoCD deploys RBAC
 
 ---
 
-## Step 8: Test SSO Access
+## Step 6: Test SSO Access
 
 ### **Configure SSO**
 ```bash
 aws configure sso
-# SSO start URL: (from setup script output)
+# SSO start URL: https://d-xxxxx.awsapps.com/start
 # SSO region: eu-central-1
 # Account: (your account)
 # Role: PlatformAdmin
@@ -97,82 +76,56 @@ aws configure sso
 aws sso login --profile alice-admin
 ```
 
-**Opens browser → Login with email → Done!**
-
 ### **Access EKS**
 ```bash
-aws eks update-kubeconfig --name eks-lab --profile alice-admin --region eu-central-1
+aws eks update-kubeconfig --name eks-gitops-lab --profile alice-admin --region eu-central-1
 kubectl get nodes
 ```
 
-### **Test Other Users**
-```bash
-# Bob (DevOps)
-aws configure sso  # Choose DevOpsEngineer
-aws sso login --profile bob-devops
-aws eks update-kubeconfig --name eks-lab --profile bob-devops --region eu-central-1 --alias eks-lab-devops
-kubectl get pods -A
-
-# Charlie (Developer)
-aws configure sso  # Choose Developer
-aws sso login --profile charlie-dev
-aws eks update-kubeconfig --name eks-lab --profile charlie-dev --region eu-central-1 --alias eks-lab-dev
-kubectl get pods -n dev
-kubectl get nodes  # Should fail (RBAC working!)
-```
-
 ---
 
-## What's Different from IAM Users?
+## Benefits of Terraform Approach
 
-### ✅ **Better:**
-- Browser-based login (no access keys!)
-- Temporary credentials (auto-expire)
-- Real SSO experience
-- Industry standard approach
+### ✅ **Better than Bash Scripts:**
+- Fully automated
+- Idempotent (run multiple times safely)
+- State management
+- Handles dependencies automatically
+- Production-ready
 
-### ⚠️ **Same:**
-- EKS Access Entries (identical)
-- Kubernetes RBAC (identical)
-- Namespace isolation (identical)
-
----
-
-## Security for Public Repo
-
-✅ **Safe in Git:**
-- Bootstrap script (no emails)
-- Terraform module (no credentials)
-- RBAC manifests
-
-❌ **NOT in Git:**
-- User emails (added via script)
-- SSO start URL (has account ID)
-- Credentials (temporary, never stored)
+### ✅ **What Terraform Manages:**
+- Users
+- Permission sets
+- Account assignments
+- EKS Access Entries
+- Everything in one apply!
 
 ---
 
 ## Cleanup
 
 ```bash
-# Remove module from main.tf
-git commit -m "chore: Remove Identity Center integration"
-git push
+# Terraform destroy handles everything
+gh workflow run terraform-destroy.yml -f confirm=destroy
 
-# Delete users (optional)
-# Via AWS Console → IAM Identity Center → Users
+# Or use cleanup script
+./scripts/cleanup-all.sh
 ```
+
+Terraform will automatically delete:
+- EKS Access Entries
+- Account assignments
+- Permission sets
+- Users
 
 ---
 
 ## Summary
 
-**What You Get:**
-- ✅ Real AWS SSO experience
-- ✅ Browser-based authentication
-- ✅ No long-lived credentials
-- ✅ Production-ready setup
-- ✅ FREE (no cost)
+**Setup Steps:**
+1. ✅ Enable Identity Center (one-time, 30 seconds)
+2. ✅ Add email secrets
+3. ✅ Push to deploy
 
-**Perfect for learning the real thing!** 🎓
+**Everything else is automated by Terraform!** 🚀
 
