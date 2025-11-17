@@ -54,7 +54,8 @@ output "grafana_cloudwatch_role_arn" {
 }
 
 # IAM Identity Center
-output "identity_center_setup" {
-  description = "IAM Identity Center setup instructions"
-  value       = module.iam_identity_center.setup_complete
-}
+# TODO: Uncomment after SSO roles are created
+# output "identity_center_setup" {
+#   description = "IAM Identity Center setup instructions"
+#   value       = module.iam_identity_center.setup_complete
+# }
