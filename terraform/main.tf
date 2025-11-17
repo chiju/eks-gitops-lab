@@ -61,13 +61,11 @@ module "argocd" {
 }
 
 # IAM Identity Center Integration
-# Automatically finds SSO roles created by permission set assignments
+# Run scripts/setup-identity-center.sh first to create users and permission sets
 module "iam_identity_center" {
   source = "./modules/iam-identity-center"
 
-  cluster_name      = var.cluster_name
-  user_email_prefix = var.user_email_prefix
-  user_email_domain = var.user_email_domain
+  cluster_name = var.cluster_name
 
   depends_on = [module.eks]
 }
