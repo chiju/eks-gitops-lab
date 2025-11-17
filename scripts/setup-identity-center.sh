@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+# Usage: ./setup-identity-center.sh [email@example.com]
+
 AWS_PROFILE="oth_infra"
 REGION="eu-central-1"
 
@@ -29,191 +31,102 @@ echo "✅ Identity Center is enabled"
 echo "Instance ARN: $INSTANCE_ARN"
 echo ""
 
-# Get user's email for the + trick
-read -p "Enter your email (e.g., your-email@gmail.com): " USER_EMAIL
+# Get Identity Store ID and Account ID
+IDENTITY_STORE_ID=$(aws sso-admin list-instances --profile $AWS_PROFILE --region $REGION --query 'Instances[0].IdentityStoreId' --output text)
+ACCOUNT_ID=$(aws sts get-caller-identity --profile $AWS_PROFILE --query Account --output text)
+
+# Get user's email
+USER_EMAIL="$1"
+if [ -z "$USER_EMAIL" ]; then
+  read -p "Enter your email (e.g., your-email@gmail.com): " USER_EMAIL
+fi
 
 if [[ ! "$USER_EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
   echo "❌ Invalid email format"
   exit 1
 fi
 
-echo ""
 echo "📧 Will create users with + trick:"
 echo "  - ${USER_EMAIL%@*}+alice@${USER_EMAIL#*@}"
 echo "  - ${USER_EMAIL%@*}+bob@${USER_EMAIL#*@}"
 echo "  - ${USER_EMAIL%@*}+charlie@${USER_EMAIL#*@}"
 echo "  - ${USER_EMAIL%@*}+diana@${USER_EMAIL#*@}"
 echo ""
-read -p "Continue? (y/n): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-  exit 1
-fi
-
-# Check if Identity Center is already enabled
-echo ""
-echo "Checking IAM Identity Center status..."
-INSTANCE_ARN=$(aws sso-admin list-instances \
-  --region $REGION \
-  --profile $AWS_PROFILE \
-  --query 'Instances[0].InstanceArn' \
-  --output text 2>/dev/null || echo "None")
-
-if [ "$INSTANCE_ARN" == "None" ] || [ -z "$INSTANCE_ARN" ]; then
-  echo "⚠️  IAM Identity Center is not enabled"
-  echo ""
-  echo "Please enable it manually (one-time setup):"
-  echo "1. Go to: https://console.aws.amazon.com/singlesignon"
-  echo "2. Click 'Enable'"
-  echo "3. Choose 'Identity Center directory' as identity source"
-  echo "4. Re-run this script"
-  exit 1
-fi
-
-echo "✅ IAM Identity Center is enabled"
-echo "Instance ARN: $INSTANCE_ARN"
-
-# Get Identity Store ID
-IDENTITY_STORE_ID=$(aws sso-admin list-instances \
-  --region $REGION \
-  --profile $AWS_PROFILE \
-  --query 'Instances[0].IdentityStoreId' \
-  --output text)
-
-echo "Identity Store ID: $IDENTITY_STORE_ID"
-
-# Get AWS Account ID
-ACCOUNT_ID=$(aws sts get-caller-identity --profile $AWS_PROFILE --query Account --output text)
-echo "AWS Account ID: $ACCOUNT_ID"
 
 # Create users
-echo ""
 echo "Creating users..."
 
-declare -A USERS=(
-  ["alice-admin"]="Alice Admin"
-  ["bob-devops"]="Bob DevOps"
-  ["charlie-dev"]="Charlie Developer"
-  ["diana-viewer"]="Diana Viewer"
-)
-
-declare -A USER_IDS
-
-for username in "${!USERS[@]}"; do
-  display_name="${USERS[$username]}"
-  email="${USER_EMAIL%@*}+${username%-*}@${USER_EMAIL#*@}"
+create_user() {
+  local username=$1
+  local display_name=$2
+  local email="${USER_EMAIL%@*}+${username%-*}@${USER_EMAIL#*@}"
   
-  echo "  Creating user: $username ($email)"
-  
-  # Check if user exists
-  EXISTING_USER=$(aws identitystore list-users \
+  echo "  $username ($email)"
+  aws identitystore create-user \
     --identity-store-id $IDENTITY_STORE_ID \
     --region $REGION \
     --profile $AWS_PROFILE \
-    --filters AttributePath=UserName,AttributeValue=$username \
-    --query 'Users[0].UserId' \
-    --output text 2>/dev/null || echo "None")
-  
-  if [ "$EXISTING_USER" != "None" ] && [ -n "$EXISTING_USER" ]; then
-    echo "    ✅ User already exists"
-    USER_IDS[$username]=$EXISTING_USER
-  else
-    USER_ID=$(aws identitystore create-user \
-      --identity-store-id $IDENTITY_STORE_ID \
-      --region $REGION \
-      --profile $AWS_PROFILE \
-      --user-name $username \
-      --display-name "$display_name" \
-      --name FamilyName="${display_name##* }",GivenName="${display_name%% *}" \
-      --emails Value=$email,Type=work,Primary=true \
-      --query 'UserId' \
-      --output text)
-    
-    USER_IDS[$username]=$USER_ID
-    echo "    ✅ Created (ID: $USER_ID)"
-  fi
-done
+    --user-name $username \
+    --display-name "$display_name" \
+    --name FamilyName="${display_name##* }",GivenName="${display_name%% *}" \
+    --emails Value=$email,Type=work,Primary=true \
+    --query 'UserId' \
+    --output text
+}
 
-# Create Permission Sets
+USER_ID_ALICE=$(create_user "alice-admin" "Alice Admin")
+USER_ID_BOB=$(create_user "bob-devops" "Bob DevOps")
+USER_ID_CHARLIE=$(create_user "charlie-dev" "Charlie Developer")
+USER_ID_DIANA=$(create_user "diana-viewer" "Diana Viewer")
+
+echo "✅ Users created"
 echo ""
+
+# Create permission sets
 echo "Creating permission sets..."
 
-declare -A PERMISSION_SETS=(
-  ["PlatformAdmin"]="arn:aws:iam::aws:policy/AdministratorAccess"
-  ["DevOpsEngineer"]="arn:aws:iam::aws:policy/PowerUserAccess"
-  ["Developer"]="arn:aws:iam::aws:policy/ReadOnlyAccess"
-  ["ReadOnly"]="arn:aws:iam::aws:policy/ViewOnlyAccess"
-)
-
-declare -A PERMISSION_SET_ARNS
-
-for ps_name in "${!PERMISSION_SETS[@]}"; do
-  policy_arn="${PERMISSION_SETS[$ps_name]}"
+create_permission_set() {
+  local name=$1
+  local policy=$2
   
-  echo "  Creating permission set: $ps_name"
-  
-  # Check if permission set exists
-  EXISTING_PS=$(aws sso-admin list-permission-sets \
+  echo "  $name"
+  PS_ARN=$(aws sso-admin create-permission-set \
     --instance-arn $INSTANCE_ARN \
     --region $REGION \
     --profile $AWS_PROFILE \
-    --query "PermissionSets[?contains(@, '$ps_name')]" \
-    --output text 2>/dev/null || echo "")
+    --name $name \
+    --description "Permission set for $name" \
+    --session-duration PT4H \
+    --query 'PermissionSet.PermissionSetArn' \
+    --output text)
   
-  if [ -n "$EXISTING_PS" ]; then
-    echo "    ✅ Permission set already exists"
-    PERMISSION_SET_ARNS[$ps_name]=$EXISTING_PS
-  else
-    PS_ARN=$(aws sso-admin create-permission-set \
-      --instance-arn $INSTANCE_ARN \
-      --region $REGION \
-      --profile $AWS_PROFILE \
-      --name $ps_name \
-      --description "Permission set for $ps_name" \
-      --session-duration PT4H \
-      --query 'PermissionSet.PermissionSetArn' \
-      --output text)
-    
-    # Attach managed policy
-    aws sso-admin attach-managed-policy-to-permission-set \
-      --instance-arn $INSTANCE_ARN \
-      --region $REGION \
-      --profile $AWS_PROFILE \
-      --permission-set-arn $PS_ARN \
-      --managed-policy-arn $policy_arn
-    
-    # Provision permission set
-    aws sso-admin provision-permission-set \
-      --instance-arn $INSTANCE_ARN \
-      --region $REGION \
-      --profile $AWS_PROFILE \
-      --permission-set-arn $PS_ARN \
-      --target-type AWS_ACCOUNT \
-      --target-id $ACCOUNT_ID
-    
-    PERMISSION_SET_ARNS[$ps_name]=$PS_ARN
-    echo "    ✅ Created and provisioned"
-  fi
-done
+  aws sso-admin attach-managed-policy-to-permission-set \
+    --instance-arn $INSTANCE_ARN \
+    --region $REGION \
+    --profile $AWS_PROFILE \
+    --permission-set-arn $PS_ARN \
+    --managed-policy-arn $policy > /dev/null
+  
+  echo "$PS_ARN"
+}
+
+PS_ARN_ADMIN=$(create_permission_set "PlatformAdmin" "arn:aws:iam::aws:policy/AdministratorAccess")
+PS_ARN_DEVOPS=$(create_permission_set "DevOpsEngineer" "arn:aws:iam::aws:policy/PowerUserAccess")
+PS_ARN_DEV=$(create_permission_set "Developer" "arn:aws:iam::aws:policy/ReadOnlyAccess")
+PS_ARN_VIEWER=$(create_permission_set "ReadOnly" "arn:aws:iam::aws:policy/ReadOnlyAccess")
+
+echo "✅ Permission sets created"
+echo ""
 
 # Assign users to permission sets
-echo ""
 echo "Assigning users to permission sets..."
 
-declare -A ASSIGNMENTS=(
-  ["alice-admin"]="PlatformAdmin"
-  ["bob-devops"]="DevOpsEngineer"
-  ["charlie-dev"]="Developer"
-  ["diana-viewer"]="ReadOnly"
-)
-
-for username in "${!ASSIGNMENTS[@]}"; do
-  ps_name="${ASSIGNMENTS[$username]}"
-  user_id="${USER_IDS[$username]}"
-  ps_arn="${PERMISSION_SET_ARNS[$ps_name]}"
+assign_user() {
+  local user_id=$1
+  local ps_arn=$2
+  local name=$3
   
-  echo "  Assigning $username → $ps_name"
-  
+  echo "  $name"
   aws sso-admin create-account-assignment \
     --instance-arn $INSTANCE_ARN \
     --region $REGION \
@@ -222,35 +135,30 @@ for username in "${!ASSIGNMENTS[@]}"; do
     --target-id $ACCOUNT_ID \
     --permission-set-arn $ps_arn \
     --principal-type USER \
-    --principal-id $user_id \
-    2>/dev/null || echo "    ⚠️  Assignment may already exist"
-  
-  echo "    ✅ Assigned"
-done
+    --principal-id $user_id > /dev/null 2>&1 || echo "    (may already exist)"
+}
+
+assign_user "$USER_ID_ALICE" "$PS_ARN_ADMIN" "alice-admin → PlatformAdmin"
+assign_user "$USER_ID_BOB" "$PS_ARN_DEVOPS" "bob-devops → DevOpsEngineer"
+assign_user "$USER_ID_CHARLIE" "$PS_ARN_DEV" "charlie-dev → Developer"
+assign_user "$USER_ID_DIANA" "$PS_ARN_VIEWER" "diana-viewer → ReadOnly"
+
+echo "✅ Assignments complete"
+echo ""
 
 # Get SSO start URL
-SSO_START_URL="https://d-$(echo $INSTANCE_ARN | cut -d'/' -f2).awsapps.com/start"
+SSO_START_URL=$(aws sso-admin list-instances --profile $AWS_PROFILE --region $REGION --query 'Instances[0].IdentityStoreId' --output text | sed 's/^/https:\/\//' | sed 's/$/.awsapps.com\/start/')
 
-echo ""
-echo "✅ IAM Identity Center setup complete!"
-echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
-echo "║                    Setup Complete!                            ║"
+echo "║          ✅ IAM Identity Center Setup Complete!              ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
-echo "📧 Check your email ($USER_EMAIL) for verification links"
-echo "   You'll receive 4 emails (one for each user)"
+echo "📧 Check your inbox for 4 verification emails and click the links"
 echo ""
-echo "🔗 SSO Start URL: $SSO_START_URL"
+echo "🔐 SSO Start URL: https://d-99675f4fc7.awsapps.com/start"
 echo ""
-echo "📝 Next steps:"
-echo ""
-echo "1. Verify all 4 email addresses"
-echo ""
-echo "2. Test SSO login:"
-echo "   aws configure sso"
-echo "   SSO start URL: $SSO_START_URL"
-echo "   SSO region: $REGION"
-echo ""
-echo "3. Continue with Terraform deployment"
+echo "Next steps:"
+echo "1. Verify all 4 emails"
+echo "2. Add Terraform module to main.tf"
+echo "3. git push to deploy"
 echo ""
