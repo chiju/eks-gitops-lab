@@ -65,9 +65,9 @@ module "argocd" {
 module "iam_identity_center" {
   source = "./modules/iam-identity-center"
 
-  cluster_name       = var.cluster_name
-  user_email_prefix  = var.user_email_prefix
-  user_email_domain  = var.user_email_domain
+  cluster_name      = var.cluster_name
+  user_email_prefix = var.user_email_prefix
+  user_email_domain = var.user_email_domain
 
   depends_on = [module.eks]
 }

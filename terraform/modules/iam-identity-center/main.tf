@@ -13,10 +13,10 @@ locals {
 # Users
 resource "aws_identitystore_user" "users" {
   for_each = {
-    "alice-admin"   = { display_name = "Alice Admin", email = var.user_email_prefix }
-    "bob-devops"    = { display_name = "Bob DevOps", email = var.user_email_prefix }
-    "charlie-dev"   = { display_name = "Charlie Developer", email = var.user_email_prefix }
-    "diana-viewer"  = { display_name = "Diana Viewer", email = var.user_email_prefix }
+    "alice-admin"  = { display_name = "Alice Admin", email = var.user_email_prefix }
+    "bob-devops"   = { display_name = "Bob DevOps", email = var.user_email_prefix }
+    "charlie-dev"  = { display_name = "Charlie Developer", email = var.user_email_prefix }
+    "diana-viewer" = { display_name = "Diana Viewer", email = var.user_email_prefix }
   }
 
   identity_store_id = local.identity_store_id
