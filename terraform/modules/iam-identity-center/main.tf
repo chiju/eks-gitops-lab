@@ -88,7 +88,7 @@ data "aws_iam_roles" "sso_roles" {
 }
 
 data "aws_iam_role" "sso_role_details" {
-  for_each = var.enable_eks_access ? toset(data.aws_iam_roles.sso_roles[0].names) : []
+  for_each = var.enable_eks_access ? toset(data.aws_iam_roles.sso_roles[0].names) : toset([])
   name     = each.value
 }
 
