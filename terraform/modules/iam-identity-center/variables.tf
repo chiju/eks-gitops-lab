@@ -13,3 +13,9 @@ variable "user_email_domain" {
   type        = string
   default     = "gmail.com"
 }
+
+variable "enable_eks_access" {
+  description = "Enable EKS access entries (set to true after first apply)"
+  type        = bool
+  default     = false
+}
