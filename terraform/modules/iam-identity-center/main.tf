@@ -80,26 +80,24 @@ resource "aws_ssoadmin_account_assignment" "assignments" {
   target_type        = "AWS_ACCOUNT"
 }
 
-# Get SSO role ARNs (created by assignments)
+# Query SSO roles (only when enabled)
 data "aws_iam_roles" "sso_roles" {
+  count       = var.enable_eks_access ? 1 : 0
   name_regex  = "AWSReservedSSO_.*"
   path_prefix = "/aws-reserved/sso.amazonaws.com/"
-
-  depends_on = [aws_ssoadmin_account_assignment.assignments]
 }
 
 data "aws_iam_role" "sso_role_details" {
-  for_each = toset(data.aws_iam_roles.sso_roles.names)
+  for_each = var.enable_eks_access ? toset(data.aws_iam_roles.sso_roles[0].names) : toset([])
   name     = each.value
 }
 
-# Map permission set names to role ARNs
 locals {
-  sso_role_map = {
+  sso_role_map = var.enable_eks_access ? {
     for name, role in data.aws_iam_role.sso_role_details :
     split("_", name)[1] => role.arn
     if length(regexall("^AWSReservedSSO_", name)) > 0
-  }
+  } : {}
 
   eks_policies = {
     "PlatformAdmin"  = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
@@ -109,13 +107,12 @@ locals {
   }
 }
 
-# EKS Access Entries
 resource "aws_eks_access_entry" "sso_roles" {
-  for_each = {
+  for_each = var.enable_eks_access ? {
     for k, v in local.eks_policies :
     k => v
     if contains(keys(local.sso_role_map), k)
-  }
+  } : {}
 
   cluster_name  = var.cluster_name
   principal_arn = local.sso_role_map[each.key]
@@ -127,7 +124,6 @@ resource "aws_eks_access_entry" "sso_roles" {
   }
 }
 
-# EKS Access Policy Associations
 resource "aws_eks_access_policy_association" "sso_policies" {
   for_each = aws_eks_access_entry.sso_roles
 
