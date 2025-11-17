@@ -131,7 +131,9 @@ jobs:
           -var="git_username=${{ secrets.GIT_USERNAME }}" \
           -var="git_repo_url=${{ secrets.GIT_REPO_URL }}" \
           -var="allowed_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
-          -var="github_actions_role_arn=${{ secrets.AWS_ROLE_ARN }}"
+          -var="github_actions_role_arn=${{ secrets.AWS_ROLE_ARN }}" \
+          -var="user_email_prefix=${{ secrets.USER_EMAIL_PREFIX }}" \
+          -var="user_email_domain=${{ secrets.USER_EMAIL_DOMAIN }}"
         exitcode=$?
         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
         if [ $exitcode -eq 1 ]; then
