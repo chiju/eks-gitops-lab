@@ -9,6 +9,26 @@ echo "AWS Profile: $AWS_PROFILE"
 echo "Region: $REGION"
 echo ""
 
+# Check if Identity Center is enabled
+echo "Checking if Identity Center is enabled..."
+INSTANCE_ARN=$(aws sso-admin list-instances --profile $AWS_PROFILE --region $REGION --query 'Instances[0].InstanceArn' --output text 2>/dev/null || echo "")
+
+if [ -z "$INSTANCE_ARN" ] || [ "$INSTANCE_ARN" = "None" ]; then
+  echo "❌ IAM Identity Center is not enabled"
+  echo ""
+  echo "Please enable it first (one-time, takes 30 seconds):"
+  echo "1. Go to: https://console.aws.amazon.com/singlesignon"
+  echo "2. Click 'Enable'"
+  echo "3. Choose 'Identity Center directory' as identity source"
+  echo ""
+  echo "Then run this script again."
+  exit 1
+fi
+
+echo "✅ Identity Center is enabled"
+echo "Instance ARN: $INSTANCE_ARN"
+echo ""
+
 # Get user's email for the + trick
 read -p "Enter your email (e.g., your-email@gmail.com): " USER_EMAIL
 
