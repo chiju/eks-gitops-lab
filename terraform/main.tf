@@ -61,6 +61,16 @@ module "argocd" {
 }
 
 # IAM Identity Center Integration
+<<<<<<< HEAD
+# Automatically finds SSO roles created by permission set assignments
+module "iam_identity_center" {
+  source = "./modules/iam-identity-center"
+
+  cluster_name = var.cluster_name
+
+  depends_on = [module.eks]
+}
+=======
 # TODO: Add after SSO roles are created via account assignment
 # module "iam_identity_center" {
 #   source = "./modules/iam-identity-center"
@@ -69,3 +79,4 @@ module "argocd" {
 #   
 #   depends_on = [module.eks]
 # }
+>>>>>>> origin/main
