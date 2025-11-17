@@ -1,6 +1,5 @@
 # IAM Identity Center Integration for EKS
-# Users and permission sets are created by bootstrap script
-# This module only creates EKS Access Entries
+# Gets the actual SSO role ARNs created by permission set assignments
 
 data "aws_caller_identity" "current" {}
 
@@ -27,22 +26,38 @@ locals {
   }
 }
 
-# Get permission set ARNs
-data "aws_ssoadmin_permission_set" "sets" {
-  for_each = local.permission_sets
+# Get all IAM roles that match SSO pattern
+data "aws_iam_roles" "sso_roles" {
+  name_regex  = "AWSReservedSSO_.*"
+  path_prefix = "/aws-reserved/sso.amazonaws.com/"
+}
 
-  instance_arn = local.instance_arn
-  name         = each.key
+# Get details for each SSO role to match with permission sets
+data "aws_iam_role" "sso_role_details" {
+  for_each = toset(data.aws_iam_roles.sso_roles.names)
+  name     = each.value
+}
+
+# Map permission set names to actual role ARNs
+locals {
+  # Extract permission set name from role name (AWSReservedSSO_<PermissionSet>_<random>)
+  sso_role_map = {
+    for name, role in data.aws_iam_role.sso_role_details :
+    split("_", name)[1] => role.arn
+    if length(regexall("^AWSReservedSSO_", name)) > 0
+  }
 }
 
 # EKS Access Entries for SSO roles
-# SSO creates roles with pattern: AWSReservedSSO_<PermissionSetName>_<random>
 resource "aws_eks_access_entry" "sso_roles" {
-  for_each = local.permission_sets
+  for_each = {
+    for k, v in local.permission_sets :
+    k => v
+    if contains(keys(local.sso_role_map), k)
+  }
 
-  cluster_name = var.cluster_name
-  # Wildcard to match SSO-created roles
-  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/*/AWSReservedSSO_${each.key}_*"
+  cluster_name  = var.cluster_name
+  principal_arn = local.sso_role_map[each.key]
   type          = "STANDARD"
 
   tags = {
@@ -53,11 +68,11 @@ resource "aws_eks_access_entry" "sso_roles" {
 
 # EKS Access Policy Associations
 resource "aws_eks_access_policy_association" "sso_policies" {
-  for_each = local.permission_sets
+  for_each = aws_eks_access_entry.sso_roles
 
   cluster_name  = var.cluster_name
-  principal_arn = aws_eks_access_entry.sso_roles[each.key].principal_arn
-  policy_arn    = each.value.eks_policy
+  principal_arn = each.value.principal_arn
+  policy_arn    = local.permission_sets[each.key].eks_policy
 
   access_scope {
     type = "cluster"

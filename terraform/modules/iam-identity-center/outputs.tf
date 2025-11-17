@@ -8,11 +8,9 @@ output "identity_store_id" {
   value       = local.identity_store_id
 }
 
-output "permission_set_arns" {
-  description = "Permission set ARNs"
-  value = {
-    for k, v in data.aws_ssoadmin_permission_set.sets : k => v.arn
-  }
+output "sso_roles_found" {
+  description = "SSO roles found and mapped"
+  value       = local.sso_role_map
 }
 
 output "setup_complete" {
@@ -22,7 +20,7 @@ output "setup_complete" {
   ║              IAM Identity Center - EKS Integration Complete!                  ║
   ╚═══════════════════════════════════════════════════════════════════════════════╝
   
-  ✅ EKS Access Entries created for all permission sets
+  ✅ EKS Access Entries created for: ${join(", ", keys(aws_eks_access_entry.sso_roles))}
   ✅ RBAC will be deployed by ArgoCD automatically
   
   🔐 To access EKS:
