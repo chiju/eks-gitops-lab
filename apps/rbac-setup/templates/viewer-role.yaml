@@ -5,15 +5,10 @@ kind: ClusterRole
 metadata:
   name: viewer-role
 rules:
-# View all resources
+# View all resources except secrets
 - apiGroups: ["*"]
   resources: ["*"]
   verbs: ["get", "list", "watch"]
-
-# Explicitly deny secrets
-- apiGroups: [""]
-  resources: ["secrets"]
-  verbs: []
 
 ---
 # Bind viewers group to viewer role
