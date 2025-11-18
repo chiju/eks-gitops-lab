@@ -11,8 +11,6 @@ spec:
   kubernetesGroups: {{ index $.Values.kubernetesGroups $permissionSet | toYaml | nindent 4 }}
   type: STANDARD
   tags:
-    - key: ManagedBy
-      value: ArgoCD
-    - key: PermissionSet
-      value: {{ $permissionSet }}
+    ManagedBy: ArgoCD
+    PermissionSet: {{ $permissionSet }}
 {{- end }}
