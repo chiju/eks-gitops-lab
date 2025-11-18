@@ -38,6 +38,7 @@ jobs:
           echo "karpenter_node_role=$(terraform output -raw karpenter_node_role_name)" >> $GITHUB_OUTPUT
           echo "interruption_queue=$(terraform output -raw karpenter_sqs_queue_name)" >> $GITHUB_OUTPUT
           echo "grafana_role_arn=$(terraform output -raw grafana_cloudwatch_role_arn)" >> $GITHUB_OUTPUT
+          echo "ack_role_arn=$(terraform output -raw ack_eks_controller_role_arn)" >> $GITHUB_OUTPUT
       
       - name: Update Karpenter values.yaml
         run: |
@@ -78,6 +79,10 @@ jobs:
       - name: Update Grafana ServiceAccount
         run: |
           sed -i "s|GRAFANA_ROLE_ARN_PLACEHOLDER|${{ steps.terraform.outputs.grafana_role_arn }}|g" apps/kube-prometheus-stack/values.yaml
+      
+      - name: Update ACK EKS Controller ServiceAccount
+        run: |
+          sed -i "s|eks.amazonaws.com/role-arn: \"\"|eks.amazonaws.com/role-arn: \"${{ steps.terraform.outputs.ack_role_arn }}\"|g" apps/ack-eks-controller/values.yaml
       
       - name: Wait for SSO Roles and Update AccessEntry Values
         run: |
@@ -123,6 +128,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add apps/karpenter/values.yaml apps/karpenter/templates/ec2nodeclass.yaml apps/kube-prometheus-stack/values.yaml apps/access-entries/values.yaml
+          git add apps/karpenter/values.yaml apps/karpenter/templates/ec2nodeclass.yaml apps/kube-prometheus-stack/values.yaml apps/ack-eks-controller/values.yaml apps/access-entries/values.yaml
           git diff --staged --quiet || git commit -m "chore: Update app values from Terraform outputs [skip ci]"
           git push
