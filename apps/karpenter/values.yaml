@@ -4,9 +4,9 @@
 karpenter:
   settings:
     clusterName: eks-gitops-lab
-    clusterEndpoint: https://PLACEHOLDER.eks.amazonaws.com
+    clusterEndpoint: https://9E47164FC418AB054949D872498529C4.gr7.eu-central-1.eks.amazonaws.com
     interruptionQueue: eks-gitops-lab
   
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/KarpenterControllerRole-eks-gitops-lab
+      eks.amazonaws.com/role-arn: arn:aws:iam::432801802107:role/KarpenterControllerRole-eks-gitops-lab

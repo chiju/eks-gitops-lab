@@ -1,10 +1,12 @@
-# SSO Role ARNs (will be updated by GitHub Actions from Terraform outputs)
+# Auto-generated from AWS SSO roles by GitHub Actions
+# Do not edit manually - changes will be overwritten
+
 clusterName: eks-gitops-lab
 
 ssoRoles:
-  EKSDeveloper: "arn:aws:iam::ACCOUNT_ID:role/aws-reserved/sso.amazonaws.com/REGION/AWSReservedSSO_EKSDeveloper_PLACEHOLDER"
-  EKSDevOps: "arn:aws:iam::ACCOUNT_ID:role/aws-reserved/sso.amazonaws.com/REGION/AWSReservedSSO_EKSDevOps_PLACEHOLDER"
-  EKSReadOnly: "arn:aws:iam::ACCOUNT_ID:role/aws-reserved/sso.amazonaws.com/REGION/AWSReservedSSO_EKSReadOnly_PLACEHOLDER"
+  EKSDeveloper: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSDeveloper_4d5ac6905339b01d"
+  EKSDevOps: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSDevOps_5616790b76e2378c"
+  EKSReadOnly: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSReadOnly_ab09fc33bb25dadf"
 
 # Map to K8s groups
 kubernetesGroups:
