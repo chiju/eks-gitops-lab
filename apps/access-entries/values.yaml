@@ -1,0 +1,16 @@
+# SSO Role ARNs (will be updated by GitHub Actions from Terraform outputs)
+clusterName: eks-gitops-lab
+
+ssoRoles:
+  EKSDeveloper: "arn:aws:iam::ACCOUNT_ID:role/aws-reserved/sso.amazonaws.com/REGION/AWSReservedSSO_EKSDeveloper_PLACEHOLDER"
+  EKSDevOps: "arn:aws:iam::ACCOUNT_ID:role/aws-reserved/sso.amazonaws.com/REGION/AWSReservedSSO_EKSDevOps_PLACEHOLDER"
+  EKSReadOnly: "arn:aws:iam::ACCOUNT_ID:role/aws-reserved/sso.amazonaws.com/REGION/AWSReservedSSO_EKSReadOnly_PLACEHOLDER"
+
+# Map to K8s groups
+kubernetesGroups:
+  EKSDeveloper:
+    - developers
+  EKSDevOps:
+    - devops
+  EKSReadOnly:
+    - viewers

@@ -3,19 +3,29 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "user_email_prefix" {
-  description = "Email prefix for users (e.g., 'chijuar' for chijuar+alice@gmail.com)"
-  type        = string
+variable "users" {
+  description = "Identity Center users to create"
+  type = map(object({
+    email        = string
+    given_name   = string
+    family_name  = string
+    display_name = string
+  }))
 }
 
-variable "user_email_domain" {
-  description = "Email domain for users (e.g., 'gmail.com')"
-  type        = string
-  default     = "gmail.com"
+variable "permission_sets" {
+  description = "Permission sets to create"
+  type = map(object({
+    description        = string
+    managed_policy_arn = string
+  }))
 }
 
-variable "enable_eks_access" {
-  description = "Enable EKS access entries (set to true after first apply)"
-  type        = bool
-  default     = false
+variable "user_assignments" {
+  description = "User to permission set assignments"
+  type = map(object({
+    user           = string
+    permission_set = string
+  }))
 }
+

@@ -1,62 +1,42 @@
-output "instance_arn" {
-  description = "IAM Identity Center instance ARN"
-  value       = local.instance_arn
+output "users_created" {
+  description = "Identity Center users created"
+  value       = keys(aws_identitystore_user.users)
 }
 
-output "identity_store_id" {
-  description = "Identity Store ID"
-  value       = local.identity_store_id
+output "permission_sets_created" {
+  description = "Permission sets created"
+  value       = keys(aws_ssoadmin_permission_set.sets)
 }
 
-output "user_ids" {
-  description = "Created user IDs"
-  value = {
-    for k, v in aws_identitystore_user.users : k => v.user_id
-  }
+output "access_portal_url" {
+  description = "AWS access portal URL for SSO login"
+  value       = "https://${split("/", local.instance_arn)[1]}.awsapps.com/start"
 }
 
-output "permission_set_arns" {
-  description = "Created permission set ARNs"
-  value = {
-    for k, v in aws_ssoadmin_permission_set.sets : k => v.arn
-  }
-}
-
-output "sso_roles_found" {
-  description = "SSO roles mapped to EKS"
-  value       = local.sso_role_map
-}
-
-output "setup_complete" {
-  value = <<-EOT
+output "setup_instructions" {
+  description = "Next steps for users"
+  value       = <<-EOT
+  ✅ Identity Center Setup Complete!
   
-  ╔═══════════════════════════════════════════════════════════════════════════════╗
-  ║              IAM Identity Center - Fully Automated Setup Complete!            ║
-  ╚═══════════════════════════════════════════════════════════════════════════════╝
+  Users created: ${join(", ", keys(aws_identitystore_user.users))}
   
-  ✅ Users created: ${join(", ", keys(aws_identitystore_user.users))}
-  ✅ Permission sets created: ${join(", ", keys(aws_ssoadmin_permission_set.sets))}
-  ✅ Account assignments created (SSO roles provisioned)
-  ✅ EKS Access Entries created: ${join(", ", keys(aws_eks_access_entry.sso_roles))}
-  ✅ RBAC will be deployed by ArgoCD automatically
+  📧 Check emails for invitation links:
+  ${join("\n  ", [for k, v in var.users : "- ${v.email}"])}
   
-  🔐 To access EKS:
+  🔐 After setting passwords, configure AWS CLI:
   
-  1. Login via SSO:
-     aws configure sso
-     aws sso login --profile alice-admin
+  aws configure sso
+  SSO start URL: https://${split("/", local.instance_arn)[1]}.awsapps.com/start
+  SSO region: ${data.aws_region.current.id}
   
-  2. Configure kubectl:
-     aws eks update-kubeconfig --name ${var.cluster_name} --profile alice-admin --region eu-central-1
+  ⚠️  Wait 3 minutes for AWS to provision SSO roles
+  ⚠️  Access entries will be created by ACK controller from ArgoCD!
   
-  3. Test access:
-     kubectl get nodes
+  Check: kubectl get accessentry -A
   
-  📧 Users will receive verification emails at:
-     ${var.user_email_prefix}+alice@${var.user_email_domain}
-     ${var.user_email_prefix}+bob@${var.user_email_domain}
-     ${var.user_email_prefix}+charlie@${var.user_email_domain}
-     ${var.user_email_prefix}+diana@${var.user_email_domain}
-  
+  Then login and access EKS:
+  aws sso login --profile <profile-name>
+  aws eks update-kubeconfig --name ${var.cluster_name} --profile <profile-name>
   EOT
 }
+
