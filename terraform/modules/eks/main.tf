@@ -621,7 +621,10 @@ resource "aws_iam_role_policy" "ack_eks_controller_policy" {
           "eks:DisassociateAccessPolicy",
           "eks:ListAssociatedAccessPolicies"
         ]
-        Resource = aws_eks_cluster.eks_cluster_lrn.arn
+        Resource = [
+          aws_eks_cluster.eks_cluster_lrn.arn,
+          "${aws_eks_cluster.eks_cluster_lrn.arn}/*"
+        ]
       }
     ]
   })
