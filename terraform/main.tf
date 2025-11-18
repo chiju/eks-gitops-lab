@@ -86,6 +86,12 @@ module "iam_identity_center" {
       family_name  = "Viewer"
       display_name = "Diana Viewer"
     }
+    akhila-devops = {
+      email        = "akhilachiju@gmail.com"
+      given_name   = "Akhila"
+      family_name  = "Chandran"
+      display_name = "Akhila Chandran"
+    }
   }
 
   # Permission sets
@@ -117,6 +123,10 @@ module "iam_identity_center" {
     diana-to-viewer = {
       user           = "diana-viewer"
       permission_set = "EKSReadOnly"
+    }
+    akhila-to-devops = {
+      user           = "akhila-devops"
+      permission_set = "EKSDevOps"
     }
   }
 
