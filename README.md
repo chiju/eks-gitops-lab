@@ -41,12 +41,21 @@ This project demonstrates a **complete GitOps workflow** from zero to a fully au
 - **Grafana**: Metrics visualization with CloudWatch integration
 - **Loki**: Log aggregation backend
 - **Promtail**: Log collection from all pods
+- **Event Exporter**: Kubernetes events to Loki for Grafana visualization
+
+### AWS Controllers for Kubernetes (ACK)
+- **ACK EKS Controller**: Manages EKS resources via Kubernetes CRDs
+- **Access Entries**: Automatically created from SSO roles
+- **GitOps-native**: Self-healing access management
 
 ## 🔐 Security Features
 
 ### Authentication & Authorization
 - ✅ **AWS OIDC**: No stored credentials
 - ✅ **Federated Authentication**: GitHub Actions authenticates via OIDC
+- ✅ **IAM Identity Center**: SSO with multiple users and permission sets
+- ✅ **ACK EKS Controller**: Automatic AccessEntry creation from SSO roles
+- ✅ **RBAC**: Role-based access control with namespace isolation
 - ✅ **IAM Roles**: Least privilege access for all services
 - ✅ **IRSA**: IAM Roles for Service Accounts (Karpenter, Grafana)
 - ✅ **Encrypted State**: S3 backend with encryption at rest
@@ -207,14 +216,22 @@ Developer → PR → Plan → Review → Merge → Apply → Update Configs → 
 │   ├── karpenter/
 │   ├── kube-prometheus-stack/
 │   ├── loki/
-│   └── promtail/
+│   ├── promtail/
+│   ├── event-exporter/        # Kubernetes events to Loki
+│   ├── ack-eks-controller/    # ACK EKS controller
+│   ├── access-entries/        # EKS access entries via ACK
+│   └── rbac-setup/            # RBAC roles and bindings
 ├── argocd-apps/               # ArgoCD application definitions
 │   ├── nginx.yaml
 │   ├── keda.yaml
 │   ├── karpenter.yaml
 │   ├── kube-prometheus-stack.yaml
 │   ├── loki.yaml
-│   └── promtail.yaml
+│   ├── promtail.yaml
+│   ├── event-exporter.yaml
+│   ├── ack-eks-controller.yaml
+│   ├── access-entries.yaml
+│   └── rbac-setup.yaml
 ├── terraform/                 # Terraform infrastructure
 │   ├── modules/
 │   │   ├── aks/              # EKS cluster configuration
@@ -281,6 +298,30 @@ open http://localhost:3000
 kubectl port-forward svc/kube-prometheus-stack-prometheus -n monitoring 9090:9090
 open http://localhost:9090
 ```
+
+### AWS SSO Access
+
+```bash
+# Configure SSO profile
+aws configure sso
+# SSO start URL: https://d-99675f4fc7.awsapps.com/start
+# SSO Region: eu-central-1
+# Account: 432801802107
+# Role: EKSDeveloper / EKSDevOps / EKSReadOnly
+
+# Login
+aws sso login --profile <profile-name>
+
+# Access EKS
+aws eks update-kubeconfig --name eks-gitops-lab --region eu-central-1 --profile <profile-name>
+kubectl get pods -n dev  # Developer access
+kubectl get nodes        # DevOps access
+```
+
+**User Roles:**
+- **EKSDeveloper**: Full access to `dev` namespace only
+- **EKSDevOps**: Full cluster access (all namespaces, nodes)
+- **EKSReadOnly**: Read-only access to all namespaces
 
 ## 🧹 Cleanup
 
@@ -357,6 +398,23 @@ kubectl get pods --all-namespaces --field-selector=status.phase=Pending
 ### Metrics (Prometheus + Grafana)
 
 - **Node metrics**: CPU, memory, disk, network
+- **Pod metrics**: Resource usage per pod
+- **Cluster metrics**: Overall cluster health
+- **CloudWatch integration**: Grafana can query CloudWatch
+
+### Logs (Loki + Promtail)
+
+- **Centralized logging**: All pod logs in one place
+- **Query language**: LogQL for powerful log queries
+- **Retention**: Configurable log retention policies
+- **Integration**: Grafana dashboards for log visualization
+
+### Kubernetes Events (Event Exporter)
+
+- **Event collection**: All K8s events sent to Loki
+- **Grafana visualization**: View events in Grafana Explore
+- **Query**: `{app="event-exporter"}` or `{type="Warning"}`
+- **Filtering**: By namespace, reason, type, kind, name
 - **Pod metrics**: Resource usage per pod
 - **Cluster metrics**: Overall cluster health
 - **CloudWatch integration**: Grafana can query CloudWatch
