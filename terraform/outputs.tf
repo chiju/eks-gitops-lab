@@ -73,9 +73,3 @@ output "identity_center_users" {
   description = "Users created in Identity Center"
   value       = module.iam_identity_center.users_created
 }
-
-output "identity_center_sso_role_arns" {
-  description = "SSO role ARNs for ArgoCD AccessEntry CRDs"
-  value       = module.iam_identity_center.sso_role_arns
-  sensitive   = true
-}

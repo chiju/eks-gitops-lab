@@ -62,38 +62,7 @@ resource "aws_ssoadmin_account_assignment" "assignments" {
   target_type = "AWS_ACCOUNT"
 }
 
-# Wait for SSO roles to be provisioned (async)
-resource "time_sleep" "wait_for_sso_roles" {
-  depends_on = [aws_ssoadmin_account_assignment.assignments]
-
-  create_duration = "180s" # 3 minutes
-}
-
-# Query SSO roles after provisioning
-data "aws_iam_roles" "sso_roles" {
-  name_regex  = "AWSReservedSSO_.*"
-  path_prefix = "/aws-reserved/sso.amazonaws.com/"
-
-  depends_on = [time_sleep.wait_for_sso_roles]
-}
-
-# Get role details
-data "aws_iam_role" "sso_role_details" {
-  for_each = toset(data.aws_iam_roles.sso_roles.names)
-  name     = each.value
-
-  depends_on = [time_sleep.wait_for_sso_roles]
-}
-
-# Map permission set names to role ARNs (output for ArgoCD)
-locals {
-  sso_role_map = {
-    for name, role in data.aws_iam_role.sso_role_details :
-    split("_", name)[1] => role.arn
-    if length(regexall("^AWSReservedSSO_", name)) > 0
-  }
-}
-
-# NOTE: Access entries are NOT created here
-# They will be created by ACK controller from ArgoCD CRDs
+# NOTE: SSO roles are provisioned by AWS asynchronously (2-3 minutes)
+# ACK controller will create access entries from CRDs in ArgoCD
+# No need to query SSO roles here
 

@@ -8,11 +8,6 @@ output "permission_sets_created" {
   value       = keys(aws_ssoadmin_permission_set.sets)
 }
 
-output "sso_role_arns" {
-  description = "SSO role ARNs for ArgoCD AccessEntry CRDs"
-  value       = local.sso_role_map
-}
-
 output "access_portal_url" {
   description = "AWS access portal URL for SSO login"
   value       = "https://${split("/", local.instance_arn)[1]}.awsapps.com/start"
@@ -34,7 +29,9 @@ output "setup_instructions" {
   SSO start URL: https://${split("/", local.instance_arn)[1]}.awsapps.com/start
   SSO region: ${data.aws_region.current.id}
   
+  ⚠️  Wait 3 minutes for AWS to provision SSO roles
   ⚠️  Access entries will be created by ACK controller from ArgoCD!
+  
   Check: kubectl get accessentry -A
   
   Then login and access EKS:
