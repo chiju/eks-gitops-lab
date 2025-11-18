@@ -1,6 +1,6 @@
 # EKS Lab with ArgoCD - Main Configuration
 # Deployed via GitHub Actions with OIDC authentication
-# Updated: 2025-11-18 - Identity Center + ACK GitOps setup
+# Updated: 2025-11-11 - Testing workflow updates
 
 # Account ID validation
 data "aws_caller_identity" "current" {}
@@ -122,6 +122,6 @@ module "iam_identity_center" {
 
   # NOTE: Access entries will be created by ACK controller from ArgoCD
   # See: apps/access-entries/ for CRD definitions
-
-  depends_on = [module.eks, module.argocd]
+  
+  # No depends_on needed - Identity Center users are independent of EKS
 }
