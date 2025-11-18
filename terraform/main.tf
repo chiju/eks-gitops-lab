@@ -122,6 +122,6 @@ module "iam_identity_center" {
 
   # NOTE: Access entries will be created by ACK controller from ArgoCD
   # See: apps/access-entries/ for CRD definitions
-  
+
   # No depends_on needed - Identity Center users are independent of EKS
 }
