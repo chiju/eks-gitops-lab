@@ -32,7 +32,7 @@ output "setup_instructions" {
   
   aws configure sso
   SSO start URL: https://${split("/", local.instance_arn)[1]}.awsapps.com/start
-  SSO region: ${data.aws_region.current.name}
+  SSO region: ${data.aws_region.current.id}
   
   ⚠️  Access entries will be created by ACK controller from ArgoCD!
   Check: kubectl get accessentry -A
