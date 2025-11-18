@@ -623,7 +623,7 @@ resource "aws_iam_role_policy" "ack_eks_controller_policy" {
         ]
         Resource = [
           aws_eks_cluster.eks_cluster_lrn.arn,
-          "${aws_eks_cluster.eks_cluster_lrn.arn}/*"
+          "arn:aws:eks:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:access-entry/${var.cluster_name}/*/*"
         ]
       }
     ]
