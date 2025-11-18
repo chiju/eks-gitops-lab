@@ -1,19 +1,45 @@
-output "sso_roles_found" {
-  description = "SSO roles found and added to EKS"
-  value       = keys(aws_eks_access_entry.sso_roles)
+output "users_created" {
+  description = "Identity Center users created"
+  value       = keys(aws_identitystore_user.users)
 }
 
-output "setup_complete" {
-  description = "Setup status"
+output "permission_sets_created" {
+  description = "Permission sets created"
+  value       = keys(aws_ssoadmin_permission_set.sets)
+}
+
+output "sso_role_arns" {
+  description = "SSO role ARNs for ArgoCD AccessEntry CRDs"
+  value       = local.sso_role_map
+}
+
+output "access_portal_url" {
+  description = "AWS access portal URL for SSO login"
+  value       = "https://${split("/", local.instance_arn)[1]}.awsapps.com/start"
+}
+
+output "setup_instructions" {
+  description = "Next steps for users"
   value       = <<-EOT
-  ✅ EKS Access Entries created for SSO roles
+  ✅ Identity Center Setup Complete!
   
-  Found roles: ${join(", ", keys(local.sso_role_map))}
-  Added to EKS: ${join(", ", keys(aws_eks_access_entry.sso_roles))}
+  Users created: ${join(", ", keys(aws_identitystore_user.users))}
   
-  To login:
-  1. aws configure sso
-  2. aws sso login --profile <profile-name>
-  3. aws eks update-kubeconfig --name ${var.cluster_name} --profile <profile-name>
+  📧 Check emails for invitation links:
+  ${join("\n  ", [for k, v in var.users : "- ${v.email}"])}
+  
+  🔐 After setting passwords, configure AWS CLI:
+  
+  aws configure sso
+  SSO start URL: https://${split("/", local.instance_arn)[1]}.awsapps.com/start
+  SSO region: ${data.aws_region.current.name}
+  
+  ⚠️  Access entries will be created by ACK controller from ArgoCD!
+  Check: kubectl get accessentry -A
+  
+  Then login and access EKS:
+  aws sso login --profile <profile-name>
+  aws eks update-kubeconfig --name ${var.cluster_name} --profile <profile-name>
   EOT
 }
+

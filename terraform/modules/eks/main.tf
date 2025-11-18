@@ -574,3 +574,56 @@ resource "aws_cloudwatch_event_target" "karpenter_instance_state_change" {
   target_id = "KarpenterInstanceStateChangeQueue"
   arn       = aws_sqs_queue.karpenter.arn
 }
+
+# ACK EKS Controller IRSA Role
+resource "aws_iam_role" "ack_eks_controller_role" {
+  name = "${var.cluster_name}-ack-eks-controller-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.iam_openid_connect_provider_eks_cluster_lrn.arn
+      }
+      Condition = {
+        StringEquals = {
+          "${replace(aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer, "https://", "")}:sub" : "system:serviceaccount:ack-system:ack-eks-controller"
+          "${replace(aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer, "https://", "")}:aud" : "sts.amazonaws.com"
+        }
+      }
+    }]
+  })
+
+  tags = {
+    Name = "${var.cluster_name}-ack-eks-controller-role"
+  }
+}
+
+# ACK EKS Controller Policy
+resource "aws_iam_role_policy" "ack_eks_controller_policy" {
+  name = "${var.cluster_name}-ack-eks-controller-policy"
+  role = aws_iam_role.ack_eks_controller_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "eks:CreateAccessEntry",
+          "eks:DeleteAccessEntry",
+          "eks:DescribeAccessEntry",
+          "eks:ListAccessEntries",
+          "eks:UpdateAccessEntry",
+          "eks:AssociateAccessPolicy",
+          "eks:DisassociateAccessPolicy",
+          "eks:ListAssociatedAccessPolicies"
+        ]
+        Resource = aws_eks_cluster.eks_cluster_lrn.arn
+      }
+    ]
+  })
+}
+

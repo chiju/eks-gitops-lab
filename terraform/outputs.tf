@@ -53,9 +53,29 @@ output "grafana_cloudwatch_role_arn" {
   value       = module.eks.grafana_cloudwatch_role_arn
 }
 
+output "ack_eks_controller_role_arn" {
+  description = "IAM role ARN for ACK EKS controller"
+  value       = module.eks.ack_eks_controller_role_arn
+}
+
 # IAM Identity Center
-# TODO: Uncomment after SSO roles are created
-# output "identity_center_setup" {
-#   description = "IAM Identity Center setup instructions"
-#   value       = module.iam_identity_center.setup_complete
-# }
+output "identity_center_setup" {
+  description = "IAM Identity Center setup instructions"
+  value       = module.iam_identity_center.setup_instructions
+}
+
+output "identity_center_portal_url" {
+  description = "AWS access portal URL"
+  value       = module.iam_identity_center.access_portal_url
+}
+
+output "identity_center_users" {
+  description = "Users created in Identity Center"
+  value       = module.iam_identity_center.users_created
+}
+
+output "identity_center_sso_role_arns" {
+  description = "SSO role ARNs for ArgoCD AccessEntry CRDs"
+  value       = module.iam_identity_center.sso_role_arns
+  sensitive   = true
+}

@@ -58,3 +58,9 @@ output "karpenter_sqs_queue_name" {
   description = "SQS queue name for Karpenter interruption handling"
   value       = aws_sqs_queue.karpenter.name
 }
+
+output "ack_eks_controller_role_arn" {
+  description = "IAM role ARN for ACK EKS controller"
+  value       = aws_iam_role.ack_eks_controller_role.arn
+}
+
