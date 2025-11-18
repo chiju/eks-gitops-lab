@@ -236,6 +236,8 @@ resource "aws_iam_role_policy_attachment" "grafana_cloudwatch" {
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
 
+data "aws_region" "current" {}
+
 # Get OIDC provider certificate
 data "tls_certificate" "tls_certificate_eks_cluster_lrn" {
   url = aws_eks_cluster.eks_cluster_lrn.identity[0].oidc[0].issuer
