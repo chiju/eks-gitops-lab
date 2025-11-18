@@ -621,7 +621,9 @@ resource "aws_iam_role_policy" "ack_eks_controller_policy" {
           "eks:UpdateAccessEntry",
           "eks:AssociateAccessPolicy",
           "eks:DisassociateAccessPolicy",
-          "eks:ListAssociatedAccessPolicies"
+          "eks:ListAssociatedAccessPolicies",
+          "eks:TagResource",
+          "eks:UntagResource"
         ]
         Resource = [
           aws_eks_cluster.eks_cluster_lrn.arn,
