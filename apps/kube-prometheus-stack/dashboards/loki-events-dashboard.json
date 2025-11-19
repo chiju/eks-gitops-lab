@@ -9,10 +9,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
+      "datasource": "Loki",
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -32,10 +29,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
+          "datasource": "Loki",
           "editorMode": "code",
           "expr": "{app=\"event-exporter\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
           "queryType": "range",
@@ -46,10 +40,7 @@
       "type": "logs"
     },
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
+      "datasource": "Loki",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -69,10 +60,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
+          "datasource": "Loki",
           "editorMode": "code",
           "expr": "{namespace=\"monitoring\"}",
           "queryType": "range",
@@ -83,10 +71,7 @@
       "type": "logs"
     },
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
+      "datasource": "Loki",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -106,10 +91,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
+          "datasource": "Loki",
           "editorMode": "code",
           "expr": "{namespace=\"argocd\"}",
           "queryType": "range",
@@ -120,10 +102,7 @@
       "type": "logs"
     },
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
+      "datasource": "Loki",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -195,10 +174,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
+          "datasource": "Loki",
           "editorMode": "code",
           "expr": "sum by (type) (count_over_time({app=\"event-exporter\"}[5m]))",
           "queryType": "range",
@@ -209,10 +185,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
+      "datasource": "Loki",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -284,10 +257,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
+          "datasource": "Loki",
           "editorMode": "code",
           "expr": "sum by (namespace) (count_over_time({app=\"event-exporter\"}[5m]))",
           "queryType": "range",
@@ -298,10 +268,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "P8E80F9AEF21F6940"
-      },
+      "datasource": "Loki",
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -321,10 +288,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "loki",
-            "uid": "P8E80F9AEF21F6940"
-          },
+          "datasource": "Loki",
           "editorMode": "code",
           "expr": "{app=\"event-exporter\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
           "queryType": "range",
@@ -337,7 +301,11 @@
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["kubernetes", "events", "loki"],
+  "tags": [
+    "kubernetes",
+    "events",
+    "loki"
+  ],
   "templating": {
     "list": []
   },
