@@ -16,7 +16,7 @@ This project demonstrates a **complete GitOps workflow** from zero to a fully au
 
 **Total setup time:** ~20 minutes (mostly waiting for EKS cluster)
 
-**Manual steps:** Only 2 (bootstrap, add 2 secrets)
+**Manual steps:** Only 3 (bootstrap, OIDC, GitHub App)
 
 **Everything else:** Fully automated via GitHub Actions and ArgoCD
 
@@ -115,17 +115,32 @@ This project demonstrates a **complete GitOps workflow** from zero to a fully au
 ✅ GitHub secrets added!
 ```
 
-### 3. Add Manual Secrets
+### 3. Create GitHub App
 
+**Go to:** https://github.com/settings/apps/new
+
+**Settings:**
+- Name: `ArgoCD-EKS-GitOps`
+- Homepage: `https://github.com/YOUR_USERNAME/eks-gitops-lab`
+- Webhook: ✅ **Uncheck "Active"**
+- Repository permissions:
+  - Contents: `Read-only`
+  - Metadata: `Read-only` (mandatory)
+- Install: `Only on this account`
+
+**After creation:**
+1. Generate private key (downloads `.pem` file)
+2. Note App ID (shown on page)
+3. Install app → Select `eks-gitops-lab` repo
+4. Note Installation ID (from URL: `.../installations/XXXXXXXX`)
+
+**Store secrets:**
 ```bash
-gh secret set GIT_USERNAME -b "your-github-username"
-gh secret set ARGOCD_GITHUB_TOKEN -b "your-github-pat"
+cd ~/Downloads
+gh secret set ARGOCD_APP_PRIVATE_KEY < argocd-eks-gitops.*.private-key.pem
+gh secret set ARGOCD_APP_ID -b "YOUR_APP_ID"
+gh secret set ARGOCD_APP_INSTALLATION_ID -b "YOUR_INSTALLATION_ID"
 ```
-
-**Create GitHub PAT:**
-1. Go to https://github.com/settings/tokens
-2. Generate new token (classic)
-3. Select scope: `repo` (for private repos) or `public_repo` (for public)
 
 ### 4. Deploy
 

@@ -27,16 +27,19 @@ variable "git_apps_path" {
   default     = "argocd-apps"
 }
 
-variable "git_username" {
-  description = "GitHub username for private repos"
+variable "github_app_id" {
+  description = "GitHub App ID"
   type        = string
-  default     = ""
 }
 
-variable "github_token" {
-  description = "GitHub token for private repos"
+variable "github_app_installation_id" {
+  description = "GitHub App Installation ID"
   type        = string
-  default     = ""
+}
+
+variable "github_app_private_key" {
+  description = "GitHub App Private Key"
+  type        = string
   sensitive   = true
 }
 

@@ -45,7 +45,7 @@ module "eks" {
   depends_on = [module.vpc, null_resource.account_validation]
 }
 
-# ArgoCD module - Helm creates namespace automatically - Updated token 2025-11-19
+# ArgoCD module - Using GitHub App for authentication
 module "argocd" {
   source = "./modules/argocd"
 
@@ -54,8 +54,11 @@ module "argocd" {
   git_repo_url        = var.git_repo_url
   git_target_revision = var.git_target_revision
   git_apps_path       = "argocd-apps"
-  git_username        = var.git_username
-  github_token        = var.github_token
+  
+  # GitHub App authentication
+  github_app_id              = var.github_app_id
+  github_app_installation_id = var.github_app_installation_id
+  github_app_private_key     = var.github_app_private_key
 
   depends_on = [module.eks, null_resource.account_validation]
 }

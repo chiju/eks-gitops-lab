@@ -73,10 +73,10 @@ resource "helm_release" "argocd_apps" {
 }
 
 resource "kubernetes_secret" "argocd_repo" {
-  count = var.github_token != "" ? 1 : 0
+  count = var.github_app_id != "" ? 1 : 0
 
   metadata {
-    name      = "${var.namespace}-repo"
+    name      = "argocd-repo"
     namespace = var.namespace
     labels = {
       "argocd.argoproj.io/secret-type" = "repository"
@@ -84,10 +84,11 @@ resource "kubernetes_secret" "argocd_repo" {
   }
 
   data = {
-    type     = "git"
-    url      = var.git_repo_url
-    username = var.git_username
-    password = var.github_token
+    type                    = "git"
+    url                     = var.git_repo_url
+    githubAppID             = var.github_app_id
+    githubAppInstallationID = var.github_app_installation_id
+    githubAppPrivateKey     = var.github_app_private_key
   }
 
   depends_on = [helm_release.argocd]

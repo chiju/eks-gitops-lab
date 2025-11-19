@@ -4,8 +4,20 @@ variable "git_username" {
   sensitive   = true
 }
 
-variable "github_token" {
-  description = "GitHub personal access token"
+variable "github_app_id" {
+  description = "GitHub App ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_app_installation_id" {
+  description = "GitHub App Installation ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_app_private_key" {
+  description = "GitHub App Private Key (PEM format)"
   type        = string
   sensitive   = true
 }
