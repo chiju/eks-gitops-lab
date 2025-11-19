@@ -24,7 +24,7 @@ resource "helm_release" "argocd" {
     yamlencode({
       configs = {
         cm = {
-          "timeout.reconciliation" = "30s"
+          "timeout.reconciliation" = "5s"
         }
       }
     })
