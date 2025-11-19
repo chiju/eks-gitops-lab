@@ -16,16 +16,13 @@ REGION="eu-central-1"
 GIT_REMOTE=$(git remote get-url origin 2>/dev/null || echo "")
 GITHUB_REPO=$(echo $GIT_REMOTE | sed 's/.*github.com[:/]\(.*\)\.git/\1/' 2>/dev/null || echo "")
 
-# Delete GitHub secrets
+# Delete GitHub secrets (keep GitHub App secrets - they're one-time setup)
 if [ -n "$GITHUB_REPO" ]; then
   echo "Deleting GitHub secrets..."
   gh secret delete AWS_ROLE_ARN || true
   gh secret delete AWS_ACCOUNT_ID || true
   gh secret delete GIT_REPO_URL || true
-  gh secret delete GIT_USERNAME || true
-  gh secret delete ARGOCD_GITHUB_TOKEN || true
-  gh secret delete USER_EMAIL_PREFIX || true
-  gh secret delete USER_EMAIL_DOMAIN || true
+  echo "✅ Keeping GitHub App secrets (ARGOCD_APP_*) - they're reusable"
 fi
 
 # Delete IAM role
@@ -72,6 +69,6 @@ echo ""
 echo "To start fresh, run:"
 echo "1. ./scripts/bootstrap-backend.sh"
 echo "2. ./scripts/setup-oidc-access.sh"
-echo "3. Add GIT_USERNAME and ARGOCD_GITHUB_TOKEN secrets"
-echo "4. Add USER_EMAIL_PREFIX and USER_EMAIL_DOMAIN secrets"
-echo "5. git push origin main"
+echo "3. git push origin main"
+echo ""
+echo "Note: GitHub App secrets (ARGOCD_APP_*) are preserved and will be reused"
