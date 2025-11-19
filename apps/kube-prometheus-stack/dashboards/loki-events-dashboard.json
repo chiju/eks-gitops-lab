@@ -268,7 +268,7 @@
       "type": "logs"
     }
   ],
-  "refresh": "30s",
+  "refresh": "1s",
   "schemaVersion": 39,
   "tags": [
     "kubernetes",
