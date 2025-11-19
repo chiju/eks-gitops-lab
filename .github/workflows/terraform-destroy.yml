@@ -58,8 +58,9 @@ jobs:
         working-directory: terraform
         run: |
           terraform destroy -auto-approve \
-            -var="github_token=${{ secrets.ARGOCD_GITHUB_TOKEN }}" \
-            -var="git_username=${{ secrets.GIT_USERNAME }}" \
+            -var="github_app_id=${{ secrets.ARGOCD_APP_ID }}" \
+            -var="github_app_installation_id=${{ secrets.ARGOCD_APP_INSTALLATION_ID }}" \
+            -var="github_app_private_key=${{ secrets.ARGOCD_APP_PRIVATE_KEY }}" \
             -var="git_repo_url=${{ secrets.GIT_REPO_URL }}" \
             -var="allowed_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
             -var="github_actions_role_arn=${{ secrets.AWS_ROLE_ARN }}"
