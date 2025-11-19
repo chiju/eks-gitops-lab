@@ -1,9 +1,3 @@
-variable "git_username" {
-  description = "GitHub username"
-  type        = string
-  sensitive   = true
-}
-
 variable "github_app_id" {
   description = "GitHub App ID"
   type        = string
