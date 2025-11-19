@@ -290,7 +290,7 @@
         {
           "datasource": "Loki",
           "editorMode": "code",
-          "expr": "{app=\"event-exporter\",type=\"Warning\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
+          "expr": "{app=\"event-exporter\"} |= \"involvedObject\" | json | type=\"Warning\" | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
           "queryType": "range",
           "refId": "A"
         }
