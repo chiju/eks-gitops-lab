@@ -45,7 +45,7 @@ module "eks" {
   depends_on = [module.vpc, null_resource.account_validation]
 }
 
-# ArgoCD module - Helm creates namespace automatically
+# ArgoCD module - Helm creates namespace automatically - Updated token 2025-11-19
 module "argocd" {
   source = "./modules/argocd"
 
