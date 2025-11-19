@@ -54,7 +54,7 @@ module "argocd" {
   git_repo_url        = var.git_repo_url
   git_target_revision = var.git_target_revision
   git_apps_path       = "argocd-apps"
-  
+
   # GitHub App authentication
   github_app_id              = var.github_app_id
   github_app_installation_id = var.github_app_installation_id
