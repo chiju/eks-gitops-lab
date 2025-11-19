@@ -4,9 +4,9 @@
 clusterName: eks-gitops-lab
 
 ssoRoles:
-  EKSDeveloper: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSDeveloper_4d5ac6905339b01d"
-  EKSDevOps: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSDevOps_5616790b76e2378c"
-  EKSReadOnly: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSReadOnly_ab09fc33bb25dadf"
+  EKSDeveloper: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSDeveloper_ed899771c91ca793"
+  EKSDevOps: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSDevOps_675918919499cc40"
+  EKSReadOnly: "arn:aws:iam::432801802107:role/aws-reserved/sso.amazonaws.com/eu-central-1/AWSReservedSSO_EKSReadOnly_0d7026c117e4a185"
 
 # Map to K8s groups
 kubernetesGroups:
