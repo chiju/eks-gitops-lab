@@ -12,40 +12,9 @@
       "datasource": "Loki",
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
-      "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
-      },
-      "targets": [
-        {
-          "datasource": "Loki",
-          "editorMode": "code",
-          "expr": "{app=\"event-exporter\",type=\"Warning\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
-          "queryType": "range",
-          "refId": "A"
-        }
-      ],
-      "title": "Kubernetes Warning Events",
-      "type": "logs"
-    },
-    {
-      "datasource": "Loki",
-      "gridPos": {
-        "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 0
       },
       "id": 2,
       "options": {
@@ -76,7 +45,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 0
       },
       "id": 3,
       "options": {
@@ -157,7 +126,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 8
       },
       "id": 4,
       "options": {
@@ -240,7 +209,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 8
       },
       "id": 5,
       "options": {
@@ -273,7 +242,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 16
       },
       "id": 6,
       "options": {
@@ -296,6 +265,37 @@
         }
       ],
       "title": "All Kubernetes Events (Clean Format)",
+      "type": "logs"
+    },
+    {
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "editorMode": "code",
+          "expr": "{app=\"event-exporter\",type=\"Warning\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Kubernetes Warning Events",
       "type": "logs"
     }
   ],
