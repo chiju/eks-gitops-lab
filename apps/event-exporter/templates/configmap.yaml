@@ -8,6 +8,7 @@ data:
     logLevel: info
     logFormat: json
     maxEventAgeSeconds: 60
+    throttlePeriod: 0
     route:
       routes:
         - match:
