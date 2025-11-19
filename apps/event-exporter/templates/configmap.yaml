@@ -19,8 +19,8 @@ data:
             app: event-exporter
             cluster: eks-gitops-lab
           labels:
-            namespace: "{{ .Namespace }}"
-            reason: "{{ .Reason }}"
-            type: "{{ .Type }}"
-            kind: "{{ .InvolvedObject.Kind }}"
-            name: "{{ .InvolvedObject.Name }}"
+            namespace: "{{ `{{ .Namespace }}` }}"
+            reason: "{{ `{{ .Reason }}` }}"
+            type: "{{ `{{ .Type }}` }}"
+            kind: "{{ `{{ .InvolvedObject.Kind }}` }}"
+            name: "{{ `{{ .InvolvedObject.Name }}` }}"
