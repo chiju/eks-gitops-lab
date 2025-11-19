@@ -37,7 +37,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{app=\"event-exporter\", type=\"Warning\"}",
+          "expr": "{app=\"event-exporter\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -326,12 +326,12 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{app=\"event-exporter\"}",
+          "expr": "{app=\"event-exporter\"} |= \"involvedObject\" | json | line_format \"{{.type}} | {{.reason}} | {{.involvedObject_kind}}/{{.involvedObject_name}} | {{.message}}\"",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "All Kubernetes Events",
+      "title": "All Kubernetes Events (Clean Format)",
       "type": "logs"
     }
   ],
