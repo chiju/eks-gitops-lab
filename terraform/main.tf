@@ -1,6 +1,6 @@
 # EKS Lab with ArgoCD - Main Configuration
 # Deployed via GitHub Actions with OIDC authentication
-# Updated: 2025-11-11 - Testing workflow updates
+# Updated: 2025-11-22 - Added Rook Ceph storage integration
 
 # Account ID validation
 data "aws_caller_identity" "current" {}

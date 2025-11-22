@@ -45,20 +45,9 @@ spec:
   
   storage:
     useAllNodes: true
-    useAllDevices: false
-    deviceFilter: "^sd[b-z]"
+    useAllDevices: true
     config:
       osdsPerDevice: "1"
-    nodes:
-      - name: "ip-10-0-1-*"
-        devices:
-          - name: "/dev/nvme1n1"
-      - name: "ip-10-0-2-*"
-        devices:
-          - name: "/dev/nvme1n1"
-      - name: "ip-10-0-3-*"
-        devices:
-          - name: "/dev/nvme1n1"
   
   priorityClassNames:
     mon: system-node-critical

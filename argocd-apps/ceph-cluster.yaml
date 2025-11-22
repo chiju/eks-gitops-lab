@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/c-chandran/eks-gitops-lab
+    repoURL: https://github.com/chiju/eks-gitops-lab.git
     targetRevision: HEAD
     path: apps/ceph-cluster
   destination:
