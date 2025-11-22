@@ -58,18 +58,18 @@ output "ack_eks_controller_role_arn" {
   value       = module.eks.ack_eks_controller_role_arn
 }
 
-# IAM Identity Center
-output "identity_center_setup" {
-  description = "IAM Identity Center setup instructions"
-  value       = module.iam_identity_center.setup_instructions
-}
+# IAM Identity Center - Disabled
+# output "identity_center_setup" {
+#   description = "IAM Identity Center setup instructions"
+#   value       = module.iam_identity_center.setup_instructions
+# }
 
-output "identity_center_portal_url" {
-  description = "AWS access portal URL"
-  value       = module.iam_identity_center.access_portal_url
-}
+# output "identity_center_portal_url" {
+#   description = "AWS access portal URL"
+#   value       = module.iam_identity_center.access_portal_url
+# }
 
-output "identity_center_users" {
-  description = "Users created in Identity Center"
-  value       = module.iam_identity_center.users_created
-}
+# output "identity_center_users" {
+#   description = "Users created in Identity Center"
+#   value       = module.iam_identity_center.users_created
+# }
