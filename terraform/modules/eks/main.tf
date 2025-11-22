@@ -335,8 +335,8 @@ resource "aws_launch_template" "node_security" {
 
   # Force IMDSv2 to prevent SSRF attacks
   metadata_options {
-    http_endpoint = "enabled"
-    http_tokens   = "required"  # IMDSv2 only
+    http_endpoint               = "enabled"
+    http_tokens                 = "required" # IMDSv2 only
     http_put_response_hop_limit = 2
   }
 
@@ -344,9 +344,9 @@ resource "aws_launch_template" "node_security" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size = 20
-      volume_type = "gp3"
-      encrypted   = true
+      volume_size           = 20
+      volume_type           = "gp3"
+      encrypted             = true
       delete_on_termination = true
     }
   }
@@ -355,9 +355,9 @@ resource "aws_launch_template" "node_security" {
   block_device_mappings {
     device_name = "/dev/xvdb"
     ebs {
-      volume_size = 100
-      volume_type = "gp3"
-      encrypted   = true
+      volume_size           = 100
+      volume_type           = "gp3"
+      encrypted             = true
       delete_on_termination = true
     }
   }
@@ -368,7 +368,7 @@ resource "aws_launch_template" "node_security" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "${var.cluster_name}-worker-node"
+      Name        = "${var.cluster_name}-worker-node"
       Environment = "lab"
     }
   }
