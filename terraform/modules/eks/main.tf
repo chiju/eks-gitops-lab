@@ -310,11 +310,11 @@ resource "aws_eks_node_group" "system_nodes" {
   ami_type       = "AL2023_x86_64_STANDARD"
   capacity_type  = "ON_DEMAND"
 
-  # Advanced node security via launch template (commented for learning)
-  # launch_template {
-  #   name    = aws_launch_template.node_security.name
-  #   version = aws_launch_template.node_security.latest_version
-  # }
+  # Launch template for Ceph storage nodes
+  launch_template {
+    name    = aws_launch_template.node_security.name
+    version = aws_launch_template.node_security.latest_version
+  }
 
   depends_on = [
     aws_iam_role_policy_attachment.iam_role_policy_attachment_node_group_lrn
@@ -327,67 +327,78 @@ resource "aws_eks_node_group" "system_nodes" {
 }
 
 # Launch template for enhanced node security (commented for learning)
-# Provides IMDSv2 enforcement, EBS encryption, and custom configurations
-# resource "aws_launch_template" "node_security" {
-#   name_prefix   = "${var.cluster_name}-node-security-"
-#   image_id      = data.aws_ami.eks_worker.id
-#   instance_type = var.node_instance_type
-#
-#   # Force IMDSv2 to prevent SSRF attacks
-#   metadata_options {
-#     http_endpoint = "enabled"
-#     http_tokens   = "required"  # IMDSv2 only
-#     http_put_response_hop_limit = 2
-#   }
-#
-#   # Encrypt EBS volumes for data at rest protection
-#   block_device_mappings {
-#     device_name = "/dev/xvda"
-#     ebs {
-#       volume_size = 20
-#       volume_type = "gp3"
-#       encrypted   = true
-#       delete_on_termination = true
-#     }
-#   }
-#
-#   # Custom security group for nodes
-#   vpc_security_group_ids = [aws_security_group.node_security.id]
-#
-#   tag_specifications {
-#     resource_type = "instance"
-#     tags = {
-#       Name = "${var.cluster_name}-worker-node"
-#       Environment = "production"
-#     }
-#   }
-# }
+# Launch template with additional EBS volume for Ceph OSDs
+resource "aws_launch_template" "node_security" {
+  name_prefix   = "${var.cluster_name}-node-security-"
+  image_id      = data.aws_ami.eks_worker.id
+  instance_type = var.node_instance_type
 
-# Custom security group for enhanced node security (commented for learning)
-# resource "aws_security_group" "node_security" {
-#   name_prefix = "${var.cluster_name}-node-security-"
-#   vpc_id      = var.vpc_id
-#
-#   # Allow cluster communication
-#   ingress {
-#     from_port   = 1025
-#     to_port     = 65535
-#     protocol    = "tcp"
-#     cidr_blocks = [var.vpc_cidr]
-#   }
-#
-#   # Allow HTTPS outbound
-#   egress {
-#     from_port   = 443
-#     to_port     = 443
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#
-#   tags = {
-#     Name = "${var.cluster_name}-node-security"
-#   }
-# }
+  # Force IMDSv2 to prevent SSRF attacks
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"  # IMDSv2 only
+    http_put_response_hop_limit = 2
+  }
+
+  # Root volume
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = 20
+      volume_type = "gp3"
+      encrypted   = true
+      delete_on_termination = true
+    }
+  }
+
+  # Additional volume for Ceph OSDs
+  block_device_mappings {
+    device_name = "/dev/xvdb"
+    ebs {
+      volume_size = 100
+      volume_type = "gp3"
+      encrypted   = true
+      delete_on_termination = true
+    }
+  }
+
+  # Custom security group for nodes
+  vpc_security_group_ids = [aws_security_group.node_security.id]
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "${var.cluster_name}-worker-node"
+      Environment = "lab"
+    }
+  }
+}
+
+# Custom security group for enhanced node security
+resource "aws_security_group" "node_security" {
+  name_prefix = "${var.cluster_name}-node-security-"
+  vpc_id      = var.vpc_id
+
+  # Allow cluster communication
+  ingress {
+    from_port   = 1025
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  # Allow HTTPS outbound
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.cluster_name}-node-security"
+  }
+}
 
 # Tag cluster security group for Karpenter discovery
 resource "aws_ec2_tag" "cluster_sg_karpenter" {
