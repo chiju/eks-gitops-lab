@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ceph-cluster
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/c-chandran/eks-gitops-lab
+    targetRevision: HEAD
+    path: apps/ceph-cluster
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rook-ceph
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

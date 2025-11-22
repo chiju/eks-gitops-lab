@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ceph-storage-classes
+description: Ceph Storage Classes
+type: application
+version: 0.1.0

@@ -1,0 +1,71 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  cephVersion:
+    image: quay.io/ceph/ceph:v18.2.4
+    allowUnsupported: false
+  dataDirHostPath: /var/lib/rook
+  skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
+  waitTimeoutForHealthyOSDInMinutes: 10
+  
+  mon:
+    count: 3
+    allowMultiplePerNode: false
+  
+  mgr:
+    count: 2
+    allowMultiplePerNode: false
+    modules:
+      - name: pg_autoscaler
+        enabled: true
+  
+  dashboard:
+    enabled: true
+    ssl: true
+  
+  crashCollector:
+    disable: false
+  
+  logCollector:
+    enabled: true
+    periodicity: daily
+    maxLogSize: 500M
+  
+  cleanupPolicy:
+    confirmation: ""
+    sanitizeDisks:
+      method: quick
+      dataSource: zero
+      iteration: 1
+    allowUninstallWithVolumes: false
+  
+  storage:
+    useAllNodes: true
+    useAllDevices: false
+    deviceFilter: "^sd[b-z]"
+    config:
+      osdsPerDevice: "1"
+    nodes:
+      - name: "ip-10-0-1-*"
+        devices:
+          - name: "/dev/nvme1n1"
+      - name: "ip-10-0-2-*"
+        devices:
+          - name: "/dev/nvme1n1"
+      - name: "ip-10-0-3-*"
+        devices:
+          - name: "/dev/nvme1n1"
+  
+  priorityClassNames:
+    mon: system-node-critical
+    osd: system-node-critical
+    mgr: system-cluster-critical
+  
+  disruptionManagement:
+    managePodBudgets: true
+    osdMaintenanceTimeout: 30
+    pgHealthCheckTimeout: 0
