@@ -115,32 +115,36 @@ This project demonstrates a **complete GitOps workflow** from zero to a fully au
 ✅ GitHub secrets added!
 ```
 
-### 3. Create GitHub App
+### 3. Create GitHub App (One-time Setup)
+
+**If you don't have a GitHub App yet, create one:**
 
 **Go to:** https://github.com/settings/apps/new
 
-**Settings:**
-- Name: `ArgoCD-EKS-GitOps`
-- Homepage: `https://github.com/YOUR_USERNAME/eks-gitops-lab`
-- Webhook: ✅ **Uncheck "Active"**
-- Repository permissions:
-  - Contents: `Read-only`
-  - Metadata: `Read-only` (mandatory)
-- Install: `Only on this account`
+**Required Settings:**
+- **Name:** `ArgoCD-EKS-GitOps` (or any name)
+- **Homepage:** `https://github.com/YOUR_USERNAME/eks-gitops-lab`
+- **Webhook:** ✅ **Uncheck "Active"** (we don't need webhooks)
+- **Repository permissions:**
+  - **Contents:** `Read-only` (ArgoCD needs to read your repo)
+  - **Metadata:** `Read-only` (automatically required)
+- **Where can this app be installed:** `Only on this account`
 
 **After creation:**
-1. Generate private key (downloads `.pem` file)
-2. Note App ID (shown on page)
-3. Install app → Select `eks-gitops-lab` repo
-4. Note Installation ID (from URL: `.../installations/XXXXXXXX`)
+1. **Generate private key** → Downloads `.pem` file
+2. **Note App ID** → Shown on the app page
+3. **Install app** → Click "Install App" → Select `eks-gitops-lab` repository
+4. **Note Installation ID** → From URL: `github.com/settings/installations/XXXXXXXX`
 
-**Store secrets:**
+**Store GitHub App secrets:**
 ```bash
 cd ~/Downloads
 gh secret set ARGOCD_APP_PRIVATE_KEY < argocd-eks-gitops.*.private-key.pem
 gh secret set ARGOCD_APP_ID -b "YOUR_APP_ID"
 gh secret set ARGOCD_APP_INSTALLATION_ID -b "YOUR_INSTALLATION_ID"
 ```
+
+**✅ GitHub App configured! This is reusable for future deployments.**
 
 ### 4. Deploy
 
