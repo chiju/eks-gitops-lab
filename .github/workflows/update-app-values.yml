@@ -87,7 +87,7 @@ jobs:
       - name: Wait for SSO Roles and Update AccessEntry Values
         run: |
           echo "Waiting 3 minutes for AWS to provision SSO roles..."
-          sleep 180
+          # sleep 180  # Commented out - not needed for Rook Ceph lab
           
           echo "Querying SSO role ARNs..."
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
