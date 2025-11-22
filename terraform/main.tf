@@ -63,78 +63,78 @@ module "argocd" {
   depends_on = [module.eks, null_resource.account_validation]
 }
 
-# IAM Identity Center Integration - Disabled for Rook Ceph learning lab
-# module "iam_identity_center" {
-#   source = "./modules/iam-identity-center"
-#
-#   cluster_name = var.cluster_name
-#
-#   # Users
-#   users = {
-#     alice-dev = {
-#       email        = "chijuar@gmail.com"
-#       given_name   = "Alice"
-#       family_name  = "Developer"
-#       display_name = "Alice Developer"
-#     }
-#     bob-devops = {
-#       email        = "chijumel@gmail.com"
-#       given_name   = "Bob"
-#       family_name  = "DevOps"
-#       display_name = "Bob DevOps"
-#     }
-#     diana-viewer = {
-#       email        = "chijumelveettil@gmail.com"
-#       given_name   = "Diana"
-#       family_name  = "Viewer"
-#       display_name = "Diana Viewer"
-#     }
-#     akhila-devops = {
-#       email        = "akhilachiju@gmail.com"
-#       given_name   = "Akhila"
-#       family_name  = "Chandran"
-#       display_name = "Akhila Chandran"
-#     }
-#   }
-#
-#   # Permission sets
-#   permission_sets = {
-#     EKSDeveloper = {
-#       description        = "EKS Developer access"
-#       managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-#     }
-#     EKSDevOps = {
-#       description        = "EKS DevOps access"
-#       managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-#     }
-#     EKSReadOnly = {
-#       description        = "EKS read-only access"
-#       managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-#     }
-#   }
-#
-#   # User assignments
-#   user_assignments = {
-#     alice-to-developer = {
-#       user           = "alice-dev"
-#       permission_set = "EKSDeveloper"
-#     }
-#     bob-to-devops = {
-#       user           = "bob-devops"
-#       permission_set = "EKSDevOps"
-#     }
-#     diana-to-viewer = {
-#       user           = "diana-viewer"
-#       permission_set = "EKSReadOnly"
-#     }
-#     akhila-to-devops = {
-#       user           = "akhila-devops"
-#       permission_set = "EKSDevOps"
-#     }
-#   }
-#
-#   # NOTE: Access entries will be created by ACK controller from ArgoCD
-#   # See: apps/access-entries/ for CRD definitions
-#
-#   # No depends_on needed - Identity Center users are independent of EKS
-# }
+# IAM Identity Center Integration
+module "iam_identity_center" {
+  source = "./modules/iam-identity-center"
+
+  cluster_name = var.cluster_name
+
+  # Users
+  users = {
+    alice-dev = {
+      email        = "chijuar@gmail.com"
+      given_name   = "Alice"
+      family_name  = "Developer"
+      display_name = "Alice Developer"
+    }
+    bob-devops = {
+      email        = "chijumel@gmail.com"
+      given_name   = "Bob"
+      family_name  = "DevOps"
+      display_name = "Bob DevOps"
+    }
+    diana-viewer = {
+      email        = "chijumelveettil@gmail.com"
+      given_name   = "Diana"
+      family_name  = "Viewer"
+      display_name = "Diana Viewer"
+    }
+    akhila-devops = {
+      email        = "akhilachiju@gmail.com"
+      given_name   = "Akhila"
+      family_name  = "Chandran"
+      display_name = "Akhila Chandran"
+    }
+  }
+
+  # Permission sets
+  permission_sets = {
+    EKSDeveloper = {
+      description        = "EKS Developer access"
+      managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+    }
+    EKSDevOps = {
+      description        = "EKS DevOps access"
+      managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+    }
+    EKSReadOnly = {
+      description        = "EKS read-only access"
+      managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+    }
+  }
+
+  # User assignments
+  user_assignments = {
+    alice-to-developer = {
+      user           = "alice-dev"
+      permission_set = "EKSDeveloper"
+    }
+    bob-to-devops = {
+      user           = "bob-devops"
+      permission_set = "EKSDevOps"
+    }
+    diana-to-viewer = {
+      user           = "diana-viewer"
+      permission_set = "EKSReadOnly"
+    }
+    akhila-to-devops = {
+      user           = "akhila-devops"
+      permission_set = "EKSDevOps"
+    }
+  }
+
+  # NOTE: Access entries will be created by ACK controller from ArgoCD
+  # See: apps/access-entries/ for CRD definitions
+
+  # No depends_on needed - Identity Center users are independent of EKS
+}
