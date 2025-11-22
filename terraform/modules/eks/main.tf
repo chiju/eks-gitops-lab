@@ -1,3 +1,13 @@
+# Data source for EKS optimized AMI
+data "aws_ami" "eks_worker" {
+  filter {
+    name   = "name"
+    values = ["amazon-eks-node-${var.kubernetes_version}-v*"]
+  }
+  most_recent = true
+  owners      = ["602401143452"] # Amazon EKS AMI Account ID
+}
+
 # EKS Cluster IAM Role
 # KMS Key for EKS Secrets Encryption
 # Encrypts Kubernetes secrets at rest in etcd
