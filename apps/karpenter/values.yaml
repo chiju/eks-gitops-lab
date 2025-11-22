@@ -4,7 +4,7 @@
 karpenter:
   settings:
     clusterName: eks-gitops-lab
-    clusterEndpoint: https://B4B28020D084943DE68E764CD2BB24A6.gr7.eu-central-1.eks.amazonaws.com
+    clusterEndpoint: https://259CBE9A5D390DB31845CAF00BF2F85C.gr7.eu-central-1.eks.amazonaws.com
     interruptionQueue: eks-gitops-lab
   
   serviceAccount:
