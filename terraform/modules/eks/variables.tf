@@ -3,6 +3,16 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "VPC ID where the cluster will be created"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "VPC CIDR block"
+  type        = string
+}
+
 variable "github_actions_role_arn" {
   description = "ARN of the GitHub Actions role for EKS access"
   type        = string

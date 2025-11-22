@@ -33,6 +33,8 @@ module "eks" {
   source = "./modules/eks"
 
   cluster_name            = var.cluster_name
+  vpc_id                  = module.vpc.vpc_id
+  vpc_cidr                = var.cidr
   kubernetes_version      = var.kubernetes_version
   github_actions_role_arn = var.github_actions_role_arn
   public_subnet_ids       = module.vpc.public_subnet_ids
