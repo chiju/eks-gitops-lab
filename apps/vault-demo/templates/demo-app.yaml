@@ -28,13 +28,13 @@ spec:
         vault.hashicorp.com/agent-inject-secret-config: "secret/demo/config"
         # Template the secret
         vault.hashicorp.com/agent-inject-template-config: |
-          {{- with secret "secret/demo/config" -}}
+          {{`{{- with secret "secret/demo/config" -}}
           export DB_HOST="{{ .Data.data.db_host }}"
           export DB_PORT="{{ .Data.data.db_port }}"
           export DB_USER="{{ .Data.data.db_user }}"
           export DB_PASSWORD="{{ .Data.data.db_password }}"
           export API_KEY="{{ .Data.data.api_key }}"
-          {{- end }}
+          {{- end }}`}}
     spec:
       serviceAccountName: demo-app
       containers:
