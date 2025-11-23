@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: myapp-vault-config
+  namespace: production
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      serviceAccountName: myapp
+      restartPolicy: Never
+      containers:
+      - name: vault-config
+        image: hashicorp/vault:1.20.4
+        env:
+        - name: VAULT_ADDR
+          value: "http://vault.vault:8200"
+        - name: VAULT_TOKEN
+          value: "root"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Create secret
+          vault kv put secret/myapp/prod \
+            api_url=https://api.production.com \
+            api_token=prod-token-xyz-789 \
+            db_connection="postgresql://prod-db:5432/myapp"
+          
+          # Create policy
+          vault policy write myapp-prod - <<EOF
+          path "secret/data/myapp/prod" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          # Create role
+          vault write auth/kubernetes/role/myapp-prod \
+            bound_service_account_names=myapp \
+            bound_service_account_namespaces=production \
+            policies=myapp-prod \
+            ttl=24h
+          
+          echo "✅ Vault configured for myapp"

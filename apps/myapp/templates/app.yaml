@@ -1,0 +1,64 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: myapp-vault-secrets
+  namespace: production
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.vault:8200"
+    roleName: "myapp-prod"
+    objects: |
+      - objectName: "api_url"
+        secretPath: "secret/data/myapp/prod"
+        secretKey: "api_url"
+      - objectName: "api_token"
+        secretPath: "secret/data/myapp/prod"
+        secretKey: "api_token"
+      - objectName: "db_connection"
+        secretPath: "secret/data/myapp/prod"
+        secretKey: "db_connection"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  namespace: production
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      serviceAccountName: myapp
+      containers:
+      - name: app
+        image: nginx:alpine
+        volumeMounts:
+        - name: secrets
+          mountPath: /mnt/secrets
+          readOnly: true
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "MyApp started with Vault CSI!"
+          echo "---"
+          echo "API_URL: $(cat /mnt/secrets/api_url)"
+          echo "API_TOKEN: $(cat /mnt/secrets/api_token)"
+          echo "DB_CONNECTION: $(cat /mnt/secrets/db_connection)"
+          echo "---"
+          tail -f /dev/null
+      volumes:
+      - name: secrets
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "myapp-vault-secrets"
