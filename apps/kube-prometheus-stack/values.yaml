@@ -48,6 +48,10 @@ kube-prometheus-stack:
       - name: Loki
         type: loki
         url: http://loki-gateway.loki.svc.cluster.local
+  
+  # Node exporter with high priority
+  prometheus-node-exporter:
+    priorityClassName: system-node-critical
         access: proxy
         isDefault: false
       - name: CloudWatch
