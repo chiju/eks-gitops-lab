@@ -37,8 +37,8 @@ This project demonstrates a **complete GitOps workflow** from zero to a fully au
 - **nginx**: Web server with KEDA autoscaling
 - **KEDA**: Event-driven pod autoscaling (CPU/Memory triggers)
 - **Karpenter**: Intelligent node autoscaling and bin-packing
-- **Prometheus Stack**: Metrics collection and alerting
-- **Grafana**: Metrics visualization with CloudWatch integration
+- **Prometheus Stack**: Metrics collection with **persistent storage** (15 days retention)
+- **Grafana**: Metrics visualization with CloudWatch integration and **persistent dashboards**
 - **Loki**: Log aggregation backend
 - **Promtail**: Log collection from all pods
 - **Event Exporter**: Kubernetes events to Loki for Grafana visualization
