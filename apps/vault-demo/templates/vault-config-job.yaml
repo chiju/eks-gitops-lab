@@ -3,6 +3,10 @@ kind: Job
 metadata:
   name: vault-config
   namespace: demo
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "1"  # Run first
 spec:
   template:
     spec:

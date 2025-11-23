@@ -9,6 +9,8 @@ kind: Deployment
 metadata:
   name: demo-app
   namespace: demo
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"  # After config job
 spec:
   replicas: 1
   selector:
