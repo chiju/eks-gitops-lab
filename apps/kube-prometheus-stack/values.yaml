@@ -1,11 +1,24 @@
 kube-prometheus-stack:
   prometheus:
     prometheusSpec:
-      retention: 7d
+      retention: 15d
+      retentionSize: 45GB
       resources:
         requests:
-          cpu: 200m
-          memory: 512Mi
+          cpu: 500m
+          memory: 2Gi
+        limits:
+          cpu: 1000m
+          memory: 4Gi
+      # Persistent storage for Prometheus TSDB
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp3
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
       # Allow Prometheus to discover ServiceMonitors in all namespaces
       serviceMonitorNamespaceSelector: {}
       serviceMonitorSelector:
@@ -14,6 +27,12 @@ kube-prometheus-stack:
   grafana:
     enabled: true
     adminPassword: admin
+    # Persistent storage for Grafana dashboards
+    persistence:
+      enabled: true
+      storageClassName: gp3
+      accessModes: ["ReadWriteOnce"]
+      size: 10Gi
     grafana.ini:
       dashboards:
         min_refresh_interval: 1s
@@ -48,3 +67,15 @@ kube-prometheus-stack:
             - name: "/aws/eks/eks-lab-argocd/cluster"
             - name: "/aws/vpc/flowlogs/eks-lab-argocd"
         isDefault: false
+  
+  # AlertManager with persistence
+  alertmanager:
+    alertmanagerSpec:
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp3
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
