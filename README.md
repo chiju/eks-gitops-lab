@@ -43,6 +43,12 @@ This project demonstrates a **complete GitOps workflow** from zero to a fully au
 - **Promtail**: Log collection from all pods
 - **Event Exporter**: Kubernetes events to Loki for Grafana visualization
 
+### Secrets Management
+- **HashiCorp Vault**: Centralized secrets management with audit logging
+- **Secrets Store CSI Driver**: Kubernetes-native secret injection (no sidecars!)
+- **Vault CSI Provider**: Direct integration between Vault and Kubernetes pods
+- **Demo Apps**: Working examples showing Vault integration patterns
+
 ### AWS Controllers for Kubernetes (ACK)
 - **ACK EKS Controller**: Manages EKS resources via Kubernetes CRDs
 - **Access Entries**: Automatically created from SSO roles
@@ -237,6 +243,10 @@ Developer → PR → Plan → Review → Merge → Apply → Update Configs → 
 │   ├── loki/
 │   ├── promtail/
 │   ├── event-exporter/        # Kubernetes events to Loki
+│   ├── secrets-store-csi/     # CSI driver for secrets
+│   ├── vault/                 # HashiCorp Vault
+│   ├── vault-demo/            # Vault integration demo
+│   ├── myapp/                 # Example app with Vault
 │   ├── ack-eks-controller/    # ACK EKS controller
 │   ├── access-entries/        # EKS access entries via ACK
 │   └── rbac-setup/            # RBAC roles and bindings
@@ -538,12 +548,172 @@ git commit --allow-empty -m "Redeploy" && git push
 - ❌ Add `GIT_USERNAME` secret (one-time)
 - ❌ Add `ARGOCD_GITHUB_TOKEN` secret (one-time)
 
+## 🔐 Using Vault for Secrets Management
+
+### Overview
+
+This lab includes **HashiCorp Vault** with **CSI driver integration** - the production-standard pattern for secrets management in Kubernetes.
+
+**Why Vault + CSI?**
+- ✅ Secrets never stored in Kubernetes (bypasses etcd completely)
+- ✅ No sidecar containers (CSI driver is shared across all pods)
+- ✅ Automatic secret rotation without pod restarts
+- ✅ Full audit trail of secret access
+- ✅ Works with any programming language (just read files)
+
+### Architecture
+
+```
+Pod starts
+    ↓
+Kubernetes mounts CSI volume
+    ↓
+CSI Driver authenticates with Vault (using ServiceAccount token)
+    ↓
+Vault validates and returns secrets
+    ↓
+Secrets appear as files in /mnt/secrets/
+    ↓
+App reads secrets like normal files
+```
+
+### Quick Start
+
+**1. Check Vault is running:**
+```bash
+kubectl get pods -n vault
+# vault-0                                 1/1     Running
+# vault-csi-provider-xxxxx                2/2     Running
+```
+
+**2. See demo app using Vault:**
+```bash
+kubectl get pods -n demo
+kubectl logs -n demo -l app=demo-app
+```
+
+**3. Check example production app:**
+```bash
+kubectl get pods -n production
+kubectl logs -n production -l app=myapp
+```
+
+### Adding Secrets to Your App
+
+**Step 1: Create secret in Vault**
+```bash
+kubectl exec -n vault vault-0 -- vault kv put secret/myapp/prod \
+  api_key=your-secret-key \
+  db_password=your-db-password
+```
+
+**Step 2: Create policy**
+```bash
+kubectl exec -n vault vault-0 -- sh -c 'vault policy write myapp-prod - <<EOF
+path "secret/data/myapp/prod" {
+  capabilities = ["read"]
+}
+EOF'
+```
+
+**Step 3: Create Kubernetes role**
+```bash
+kubectl exec -n vault vault-0 -- vault write auth/kubernetes/role/myapp-prod \
+  bound_service_account_names=myapp \
+  bound_service_account_namespaces=production \
+  policies=myapp-prod \
+  ttl=24h
+```
+
+**Step 4: Use in your app**
+```yaml
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: myapp-secrets
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.vault:8200"
+    roleName: "myapp-prod"
+    objects: |
+      - objectName: "api_key"
+        secretPath: "secret/data/myapp/prod"
+        secretKey: "api_key"
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      serviceAccountName: myapp
+      containers:
+      - name: app
+        volumeMounts:
+        - name: secrets
+          mountPath: /mnt/secrets
+          readOnly: true
+        env:
+        - name: API_KEY
+          value: "$(cat /mnt/secrets/api_key)"
+      volumes:
+      - name: secrets
+        csi:
+          driver: secrets-store.csi.k8s.io
+          volumeAttributes:
+            secretProviderClass: "myapp-secrets"
+```
+
+### Complete Example
+
+See `apps/myapp/` for a complete working example with:
+- Automated Vault configuration (Job)
+- SecretProviderClass definition
+- Deployment using CSI-mounted secrets
+- ArgoCD integration with sync waves
+
+**To deploy your own app:**
+1. Copy `apps/myapp/` folder
+2. Update secret paths and values in `templates/vault-config.yaml`
+3. Update container image in `templates/app.yaml`
+4. Create ArgoCD app in `argocd-apps/`
+5. Push to Git - ArgoCD deploys automatically!
+
+### Key Benefits
+
+| Feature | Kubernetes Secrets | Vault + CSI |
+|---------|-------------------|-------------|
+| Storage | etcd (base64) | Vault (encrypted) |
+| Access Control | RBAC only | Policy-based + RBAC |
+| Audit Trail | None | Full audit log |
+| Rotation | Manual pod restart | Automatic |
+| Overhead | None | Shared DaemonSet |
+| Multi-cloud | No | Yes |
+
+### Production Considerations
+
+**Current Setup (Dev Mode):**
+- ⚠️ In-memory storage (data lost on restart)
+- ⚠️ Single instance (no HA)
+- ⚠️ Root token "root" (insecure)
+- ⚠️ Auto-unsealed (convenient but insecure)
+
+**For Production:**
+- ✅ Persistent storage (EBS or S3)
+- ✅ HA with 3+ replicas and Raft consensus
+- ✅ Auto-unseal with AWS KMS
+- ✅ Proper initialization with key sharding
+- ✅ Audit logging to CloudWatch
+- ✅ Backup and disaster recovery
+
 ## 🎓 Learning Resources
 
 - [Amazon EKS Documentation](https://docs.aws.amazon.com/eks/)
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
 - [Karpenter Documentation](https://karpenter.sh/)
 - [KEDA Documentation](https://keda.sh/)
+- [HashiCorp Vault Documentation](https://developer.hashicorp.com/vault/docs)
+- [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/)
 - [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 - [GitOps Principles](https://opengitops.dev/)
 
