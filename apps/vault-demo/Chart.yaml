@@ -1,0 +1,4 @@
+apiVersion: v2
+name: vault-demo
+version: 1.0.0
+description: Demo app using Vault sidecar injection

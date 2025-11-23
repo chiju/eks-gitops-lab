@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-config
+  namespace: demo
+spec:
+  template:
+    spec:
+      serviceAccountName: vault-config
+      restartPolicy: Never
+      containers:
+      - name: vault-config
+        image: hashicorp/vault:1.20.4
+        env:
+        - name: VAULT_ADDR
+          value: "http://vault.vault:8200"
+        - name: VAULT_TOKEN
+          value: "root"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Enable Kubernetes auth
+          vault auth enable kubernetes || true
+          
+          # Configure Kubernetes auth
+          vault write auth/kubernetes/config \
+            kubernetes_host="https://kubernetes.default.svc:443"
+          
+          # Create policy
+          vault policy write demo-app - <<EOF
+          path "secret/data/demo/*" {
+            capabilities = ["read"]
+          }
+          EOF
+          
+          # Create role
+          vault write auth/kubernetes/role/demo-app \
+            bound_service_account_names=demo-app \
+            bound_service_account_namespaces=demo \
+            policies=demo-app \
+            ttl=1h
+          
+          # Create secrets
+          vault kv put secret/demo/config \
+            db_host=postgres.demo.svc.cluster.local \
+            db_port=5432 \
+            db_user=demouser \
+            db_password=supersecret123 \
+            api_key=demo-api-key-xyz
+          
+          echo "Vault configured successfully!"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-config
+  namespace: demo
